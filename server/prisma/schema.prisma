@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  username    String    @unique
+  email       String    @unique
+  hashedPass  String
+  avatarUrl   String?
+  createdAt   DateTime  @default(now())
+  posts       Post[]
+  comments    Comment[]
+  likes       Like[]
+  followers   Connection[]  @relation("Followers")
+  following   Connection[]  @relation("Following")
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  content   String
+  imgUrl    String?
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int 
+  comments  Comment[]
+  likes     Like[]
+
+  @@index([authorId]) // Fast lookup for users' post
+}
+
+model Comment {
+  id        Int     @id @default(autoincrement())
+  content   String
+  post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int     
+  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+  createdAt DateTime  @default(now())
+
+  @@index([authorId]) // Fast lookup for users' comments
+  @@index([postId]) // Fast lookup for posts' comments
+}
+
+model Like {
+  postId    Int
+  post      Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+
+  @@id([postId, userId]) // Prevent duplicate likes
+  @@index([postId]) // Fast lookup for users' likes
+  @@index([userId]) // Fast lookup for posts' likes
+}
+
+model Connection {
+  userId        Int
+  user          User    @relation("Following", fields: [userId], references: [id], onDelete: Cascade)
+  recipient     User    @relation("Followers", fields: [recipientId], references: [id], onDelete: Cascade)
+  recipientId   Int
+  createdAt     DateTime  @default(now())
+
+
+  @@id([userId, recipientId])
+  @@index([userId]) // Fast lookup for users' following list
+  @@index([recipientId]) // Fast lookup for users' follower list
+}
