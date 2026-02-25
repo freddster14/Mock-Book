@@ -9,9 +9,15 @@ type ApiError =
   | AuthenticationError
 
 
+type ExpressError = {
+  msg: string,
+  params: string,
+  value: string,
+}
+
 type ValidationError = {
   type: "validation",
-  msg: string
+  data: ExpressError[]
 }
 
 type NotFoundError = {
@@ -31,3 +37,4 @@ type AuthenticationError = {
 
 export * from "./types/user"
 export * from "./types/post"
+export * from "../server/src/types/userToken"
