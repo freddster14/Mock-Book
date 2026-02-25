@@ -9,9 +9,9 @@ type ApiError =
   | AuthenticationError
 
 
-type ExpressError = {
+export type ExpressError = {
   msg: string,
-  params: string,
+  path: string,
   value: string,
 }
 

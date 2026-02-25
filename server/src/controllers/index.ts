@@ -14,7 +14,7 @@ export const create = [
 
     try {
       const existingUser: User | null = await prisma.user.findUnique({ where: { username }});     
-      if (existingUser) return res.status(400).json({ success: false, error: { type: "validation", data: [{ msg: "Username is taken", params: "username", value: username }]}})
+      if (existingUser) return res.status(400).json({ success: false, error: { type: "validation", data: [{ msg: "Username is taken", path: "username", value: username }]}})
 
       const hashedPass = await bcrypt.hash(password, 10)
       const user: User = await prisma.user.create({
@@ -57,7 +57,7 @@ export const accountSetup = [
     const { email } = req.body;
     try {
       const existingUser: User | null = await prisma.user.findUnique({ where: { email }});
-      if (existingUser) return res.status(400).json({ success: false, error: { type: "validation", data: [{ msg: "Email is in use", params: "email", value: email }]}})
+      if (existingUser) return res.status(400).json({ success: false, error: { type: "validation", data: [{ msg: "Email is in use", path: "email", value: email }]}})
       
       return res.status(200).json({ success: true, data: { msg: "Valid info" }})
     } catch (error) {

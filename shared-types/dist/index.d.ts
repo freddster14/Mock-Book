@@ -6,9 +6,9 @@ export type ApiResult<T> = {
     error: ApiError;
 };
 type ApiError = ValidationError | NotFoundError | ServerError | AuthenticationError;
-type ExpressError = {
+export type ExpressError = {
     msg: string;
-    params: string;
+    path: string;
     value: string;
 };
 type ValidationError = {

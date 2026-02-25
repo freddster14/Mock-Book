@@ -1,5 +1,5 @@
 export interface User {
-    id: null;
+    id: number;
     username: string;
     email: string;
     bio: string;
@@ -9,6 +9,9 @@ export interface User {
 }
 export type UserBody = Omit<User, "id" | "hashedPass" | "createdAt"> & {
     password: string;
+};
+export type UserForm = Omit<UserBody, "hashedPass" | "id" | "createdAt"> & {
+    confirm: string;
 };
 export type UserRes = Omit<User, "hashedPass">;
 export interface Connection {
