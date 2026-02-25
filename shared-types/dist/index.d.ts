@@ -29,4 +29,3 @@ type AuthenticationError = {
 };
 export * from "./types/user";
 export * from "./types/post";
-export * from "../server/src/types/userToken";
