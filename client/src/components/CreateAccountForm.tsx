@@ -3,15 +3,17 @@ import { formFetch } from "../api/fetch";
 import { useState } from "react";
 import { validateCreateAccountForm } from "../utils/formValidation";
 import { ApiError } from "../types";
-import { Navigate } from "react-router";
+import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 export default function CreateAccountForm({ formData, setFormData }:
   { formData: UserForm,
     setFormData: React.Dispatch<React.SetStateAction<UserForm>>
   }) {
-
+  const { setUser } = useAuth();
   const [ errors, setErrors ] = useState<ExpressError[] | null>(null);
   const [ isSubmitting, setIsSubmitting ] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -27,11 +29,11 @@ export default function CreateAccountForm({ formData, setFormData }:
     }
 
     try {
-      await formFetch("/sign-up", formData);
-      return <Navigate to="/dashboard" />;
+      const res = await formFetch("/sign-up", formData);
+      setUser(res.data)
+      navigate("/dashboard");
     } catch (error) {
       if (error instanceof ApiError) {
-        console.log(error.type, error.data)
         setErrors(error.data)
       }
     } finally {

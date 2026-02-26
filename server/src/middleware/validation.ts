@@ -39,3 +39,11 @@ export const validateProfile = [
     .trim()
     .isString().withMessage('Must be a string')
 ]
+
+export const validateSignIn = [
+  body('identifier')
+    .trim()
+    .notEmpty().withMessage('Email or Username required'),
+  body('password')
+    .notEmpty().withMessage('Password required')
+]

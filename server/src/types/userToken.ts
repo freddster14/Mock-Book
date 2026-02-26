@@ -1,3 +1,5 @@
+import { UserToken } from "shared-types";
+
 declare global {
   namespace Express {
     interface Request {
@@ -6,7 +8,5 @@ declare global {
   }
 }
 
-export interface UserToken {
-  userId: number
-  username: string
-}
+
+export {}

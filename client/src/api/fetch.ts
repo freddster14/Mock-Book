@@ -1,10 +1,10 @@
-import type { UserForm } from "shared-types";
+import type { UserForm, UserSignInForm } from "shared-types";
 import { ApiError } from "../types";
 
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-export const apiFetch = async (endpoint: string, options: RequestInit) => {
+export const apiFetch = async (endpoint: string, options?: RequestInit) => {
   try {
     const res = await fetch(`${API_URL}${endpoint}`, {
       credentials: "include",
@@ -28,7 +28,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit) => {
   }
 }
 
-export const formFetch = async (endpoint: string, formData: UserForm) => {
+export const formFetch = async (endpoint: string, formData: UserForm | UserSignInForm) => {
   try {
     const res = await fetch(`${API_URL}${endpoint}`, {
       credentials: "include",
@@ -42,7 +42,7 @@ export const formFetch = async (endpoint: string, formData: UserForm) => {
 
     if (!res.ok) {
       console.log("API Error Response:", data);
-      throw new ApiError(data.error.type, data.error.data)
+      throw new ApiError(data.error.msg, data.error.type, data.error?.data)
     }
 
     return data

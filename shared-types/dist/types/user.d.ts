@@ -10,9 +10,17 @@ export interface User {
 export type UserBody = Omit<User, "id" | "hashedPass" | "createdAt"> & {
     password: string;
 };
-export type UserForm = Omit<UserBody, "hashedPass" | "id" | "createdAt"> & {
+export type UserForm = UserBody & {
     confirm: string;
 };
+export type UserSignInForm = {
+    identifier: string;
+    password: string;
+};
+export interface UserToken {
+    userId: number;
+    username: string;
+}
 export type UserRes = Omit<User, "hashedPass">;
 export interface Connection {
     userId: number;
