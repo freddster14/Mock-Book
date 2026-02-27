@@ -32,7 +32,6 @@ export default function AccountSetupForm({ formData, setFormData, setStep }: {
       setStep(2)
     } catch (error) {
       if (error instanceof ApiError) {
-        console.log(error.type, error.data)
         setErrors(error.data)
       }
     } finally {

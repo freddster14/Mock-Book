@@ -4,7 +4,7 @@ export interface User {
     email: string;
     bio: string;
     hashedPass: string;
-    avatarUrl?: string;
+    avatarUrl?: string | null;
     createdAt: Date;
 }
 export type UserBody = Omit<User, "id" | "hashedPass" | "createdAt"> & {

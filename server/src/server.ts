@@ -3,6 +3,7 @@ import express  from "express";
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import { index } from "./routes";
+import { post } from "./routes/post";
 
 const app = express();
 const PORT = 3000;
@@ -13,7 +14,8 @@ app.use(cors( {
 }))
 app.use(cookieParser())
 app.use(express.json())
-app.use('/', index);
 
+app.use('/', index);
+app.use('/posts', post);
 
 app.listen(PORT, () => console.log(`Live on port: ${PORT}`))

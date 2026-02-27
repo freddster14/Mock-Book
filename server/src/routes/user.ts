@@ -3,4 +3,4 @@ import * as controller from "../controllers/user"
 
 export const user = Router();
 
-user.get('/', controller.users)
+// user.get('/:id', controller.profile)

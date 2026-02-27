@@ -7,7 +7,7 @@ export const verifyUserToken = (req: Request, res: Response, next: NextFunction)
   const token: string | null = req.cookies.token || null;
 
   if (!token) {
-    return res.status(401).json({ success: false, msg: "No token, authorization denied" });
+    return res.status(401).json({ success: false, error: { type: 'authentication', msg: "No token, authorization denied" }});
   }
 
   jwt.verify(token, process.env.SECRET!, (err, decoded) => {

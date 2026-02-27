@@ -47,3 +47,22 @@ export const validateSignIn = [
   body('password')
     .notEmpty().withMessage('Password required')
 ]
+
+export const validatePost = [
+  body('content')
+    .trim()
+    .notEmpty().withMessage("Required").bail()
+    .isLength({ max: 300 }).withMessage("Max 300 characters")
+    .isString().withMessage("Invalid content"),
+  body('imgUrl')
+    .trim()
+    .isString().withMessage("Could not load image")
+]
+
+export const validateComment = [
+  body('content')
+    .trim()
+    .notEmpty().withMessage("Required").bail()
+    .isLength({ max: 200 }).withMessage("Max 200 characters")
+    .isString().withMessage("Invalid content")
+]
