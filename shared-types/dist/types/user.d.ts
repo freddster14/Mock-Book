@@ -21,9 +21,4 @@ export interface UserToken {
     userId: number;
     username: string;
 }
-export type UserRes = Omit<User, "hashedPass">;
-export interface Connection {
-    userId: number;
-    recipientId: number;
-    createdAt: Date;
-}
+export type UserRes = Pick<User, "id" | "username" | "avatarUrl">;

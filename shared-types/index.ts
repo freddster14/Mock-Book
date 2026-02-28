@@ -17,7 +17,8 @@ export type ExpressError = {
 
 type ValidationError = {
   type: "validation",
-  data: ExpressError[]
+  data: ExpressError[],
+  msg: string
 }
 
 type NotFoundError = {
@@ -37,3 +38,6 @@ type AuthenticationError = {
 
 export * from "./types/user"
 export * from "./types/post"
+export * from "./types/comment"
+export * from "./types/like"
+export * from "./types/connection"
