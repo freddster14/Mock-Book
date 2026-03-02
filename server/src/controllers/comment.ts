@@ -11,9 +11,11 @@ export const comment = [
     const { postId } = req.params;
     const { content } = req.body;
     try {
+      // Check if the post exists
       const post: Post | null = await prisma.post.findUnique({ where: { id: parseInt(postId) }});
       if (!post) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "Post not found" }});
 
+      // Create the comment
       await prisma.comment.create({
         data: {
           content,
@@ -31,11 +33,13 @@ export const comment = [
 export const postComments = async(req: Request<{ postId: string }>, res: Response<ApiResult<PostComments[]>>) => {
   const { postId } = req.params;
   try {
+    // Check if the post exists
     const post = await prisma.post.count({
       where: { id: parseInt(postId)}
     }) 
     if (post === 0) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "Post not found" }});
     
+    // Find all the comments for the post
     const postComments: PostComments[] = await prisma.comment.findMany({
       where: { postId: parseInt(postId) },
       include: {
@@ -57,10 +61,12 @@ export const postComments = async(req: Request<{ postId: string }>, res: Respons
 export const remove = async (req: Request<{ id: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { id } = req.params;
   try {
+    // Check if the comment exists
     const comment = await prisma.comment.findUnique({ where: { id: parseInt(id) }});
     if (!comment) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "Commment not found" }});
     if(comment.authorId !== req.user.userId) return res.status(403).json({ success: false, error: { type: 'authentication', msg: "Can not remove"}})
     
+    // Delete the comment
     await prisma.comment.delete({ where: { id: parseInt(id) }});
     return res.status(200).json({ success: true, data: { msg: "Deleted" }})
   } catch (error) {

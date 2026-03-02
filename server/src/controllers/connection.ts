@@ -5,10 +5,16 @@ import { Request, Response } from "express"
 export const follow = async (req: Request<{ recipientId: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { recipientId } = req.params;
   try {
+    // Check if the user is trying to follow themselves
     if(parseInt(recipientId) === req.user.userId) return res.status(400).json({ success: false, error: { type: "validation", data: [], msg: "You can not follow yourself dummy"} })
     const recipient = await prisma.user.count({ where: { id: parseInt(recipientId) }});
     if(recipient === 0) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "User not found" }});
 
+    // Check if the user is already following the recipient
+    const existingConnection = await prisma.connection.count({ where: { userId: req.user.userId, recipientId: parseInt(recipientId) }});
+    if(existingConnection > 0) return res.status(400).json({ success: false, error: { type: "validation", data: [], msg: "Already following" }})
+
+    // Create the connection
     await prisma.connection.create({
       data: {
         userId: req.user.userId,
@@ -23,6 +29,7 @@ export const follow = async (req: Request<{ recipientId: string }>, res: Respons
 
 export const followers = async (req: Request, res: Response<ApiResult<Follower[]>>) => {
   try {
+    // Find all the users that the current user is following
     const followers = await prisma.connection.findMany({
       where: { recipientId: req.user.userId },
       include: {
@@ -44,6 +51,7 @@ export const followers = async (req: Request, res: Response<ApiResult<Follower[]
 
 export const following = async (req: Request, res: Response<ApiResult<Following[]>>) => {
   try {
+    // Find all the users that are following the current user
     const following = await prisma.connection.findMany({
       where: { userId: req.user.userId },
       include: {
@@ -65,9 +73,11 @@ export const following = async (req: Request, res: Response<ApiResult<Following[
 export const unfollow = async (req: Request<{ recipientId: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { recipientId } = req.params;
   try {
+    // Check if the user is following the recipient
     const connection = await prisma.connection.count({ where: { userId: req.user.userId, recipientId: parseInt(recipientId) }});
     if (connection === 0) return res.status(404).json({ success: false, error: { type: 'not_found', msg: 'Not following' }});
 
+    // Remove the connection
     await prisma.connection.delete({
       where: {
         userId_recipientId: {
@@ -85,9 +95,11 @@ export const unfollow = async (req: Request<{ recipientId: string }>, res: Respo
 export const remove = async (req: Request<{ recipientId: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { recipientId } = req.params;
   try {
+    // Check if the user is a follower of the recipient
     const connection = await prisma.connection.count({ where: { recipientId: req.user.userId, userId: parseInt(recipientId) }});
     if (connection === 0) return res.status(404).json({ success: false, error: { type: 'not_found', msg: 'Not a follower' }});
 
+    // Remove the connection
     await prisma.connection.delete({
       where: {
         userId_recipientId: {

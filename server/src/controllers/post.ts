@@ -5,11 +5,10 @@ import { handleValidation, validateComment, validatePost } from "../middleware/v
 
 export const followingPosts = async (req: Request, res: Response<ApiResult<PostsRes[]>>) => {
   try {
+    // Find posts from users the current user is following
     const posts: PostsRes[] = await prisma.post.findMany({
-      // Find posts from users the current user is following
       where: { 
-        author: { following: { some: { userId: req.user.userId }}},
-        // Exclude posts from the current user
+        author: { followers: { some: { userId: req.user.userId }}},
         authorId: { not: req.user.userId }
       },
       orderBy: {
@@ -39,12 +38,10 @@ export const followingPosts = async (req: Request, res: Response<ApiResult<Posts
 
 export const discoverPosts = async (req: Request, res: Response<ApiResult<PostsRes[]>>) => {
   try {
+    // Find posts from users the current user is not following
     const posts: PostsRes[]  = await prisma.post.findMany({
       where: {
-        // Find posts from users the current user is not following - test
-        NOT: { author: { following: { some: { userId: req.user.userId }}}},
-
-        // Exclude posts from the current user
+        author: { followers: { none: { userId: req.user.userId }}},
         authorId: { not: req.user.userId } ,
       },
       orderBy: {
@@ -78,6 +75,7 @@ export const createPost = [
   async (req: Request<{}, {}, PostBody>, res: Response<ApiResult<Post>>) => {
     const { content, imgUrl } = req.body;
     try {
+      // Create the post
       const post: Post = await prisma.post.create({
         data: {
           content,
@@ -95,12 +93,15 @@ export const createPost = [
 export const remove = async (req: Request<{ id: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { id } = req.params;
   try {
+    // Check if the post exists
     const post: Post | null = await prisma.post.findUnique({ where: { id: parseInt(id) }});
     if (!post) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "Post not found" }});
 
+    // Check if the user is the author of the post
     if (post.authorId !== req.user.userId) return res.status(403).json({ success: false, error: { type: "authentication", msg: "Can not delete this post"}});
 
-    await prisma.post.delete({ where: { id: parseInt(id) }})
+    // Delete the post
+    await prisma.post.delete({ where: { id: parseInt(id) }});
     return res.status(200).json({ success: true, data: { msg: "Deleted" }})
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});

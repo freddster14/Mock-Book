@@ -18,7 +18,7 @@ export type ExpressError = {
 type ValidationError = {
   type: "validation",
   data: ExpressError[],
-  msg: string
+  msg?: string
 }
 
 type NotFoundError = {

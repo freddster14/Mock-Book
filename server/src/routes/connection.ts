@@ -2,12 +2,12 @@ import { Router } from "express";
 import { verifyUserToken } from "../middleware/authentication";
 import { follow, followers, following, remove, unfollow } from "../controllers/connection";
 
-const connection = Router();
+export const connections = Router();
 
-connection.get('/following', verifyUserToken, following);
-connection.get('/followers', verifyUserToken, followers);
+connections.get('/following', verifyUserToken, following);
+connections.get('/followers', verifyUserToken, followers);
 
-connection.post('/follow/:recipientId', verifyUserToken, follow);
+connections.post('/follow/:recipientId', verifyUserToken, follow);
 
-connection.delete('/unfollow/:recipientId', verifyUserToken, unfollow);
-connection.delete('/remove/:recipientId', verifyUserToken, remove);
+connections.delete('/unfollow/:recipientId', verifyUserToken, unfollow);
+connections.delete('/remove/:recipientId', verifyUserToken, remove);
