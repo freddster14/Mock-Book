@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { formFetch } from "../api/fetch";
+import { userFormFetch } from "../api/fetch";
 import { ApiError } from "../types";
 import { Link, Navigate } from "react-router";
 import { ExpressError } from "shared-types";
@@ -26,7 +26,7 @@ export default function SignIn() {
     setIsSubmitting(true);
 
     try {
-      const res = await formFetch("/sign-in", { identifier, password });
+      const res = await userFormFetch("/sign-in", { identifier, password });
       setUser(res.data)
     } catch (error) {
       if (error instanceof ApiError) {

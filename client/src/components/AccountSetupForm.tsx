@@ -1,5 +1,5 @@
 import type { UserForm } from "shared-types";
-import { formFetch } from "../api/fetch";
+import { userFormFetch } from "../api/fetch";
 import { useState } from "react";
 import { ExpressError } from "shared-types";
 import { ApiError } from "../types";
@@ -28,7 +28,7 @@ export default function AccountSetupForm({ formData, setFormData, setStep }: {
     }
 
     try {
-      await formFetch("/set-up", formData);
+      await userFormFetch("/set-up", formData);
       setStep(2)
     } catch (error) {
       if (error instanceof ApiError) {

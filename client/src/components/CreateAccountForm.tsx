@@ -1,5 +1,5 @@
 import type { ExpressError, UserForm } from "shared-types";
-import { formFetch } from "../api/fetch";
+import { userFormFetch } from "../api/fetch";
 import { useState } from "react";
 import { validateCreateAccountForm } from "../utils/formValidation";
 import { ApiError } from "../types";
@@ -29,7 +29,7 @@ export default function CreateAccountForm({ formData, setFormData }:
     }
 
     try {
-      const res = await formFetch("/sign-up", formData);
+      const res = await userFormFetch("/sign-up", formData);
       setUser(res.data)
       navigate("/dashboard");
     } catch (error) {

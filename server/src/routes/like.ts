@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { like, postLikes } from "../controllers/like";
-import { remove } from "../controllers/post";
+import { like, postLikes, remove } from "../controllers/like";
 import { verifyUserToken } from "../middleware/authentication";
 
 export const likes = Router();

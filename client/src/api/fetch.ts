@@ -28,7 +28,7 @@ export const apiFetch = async (endpoint: string, options?: RequestInit) => {
   }
 }
 
-export const formFetch = async (endpoint: string, formData: UserForm | UserSignInForm) => {
+export const userFormFetch = async (endpoint: string, formData: UserForm | UserSignInForm) => {
   try {
     const res = await fetch(`${API_URL}${endpoint}`, {
       credentials: "include",
