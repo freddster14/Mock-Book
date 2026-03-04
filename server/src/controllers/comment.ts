@@ -42,6 +42,9 @@ export const postComments = async(req: Request<{ postId: string }>, res: Respons
     // Find all the comments for the post
     const postComments: PostComments[] = await prisma.comment.findMany({
       where: { postId: parseInt(postId) },
+      orderBy: {
+        createdAt: 'desc'
+      },
       include: {
         author: {
           select: {
