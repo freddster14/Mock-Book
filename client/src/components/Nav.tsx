@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { apiFetch } from "../api/fetch";
 
 export default function Nav() {
-  const { setUser } = useAuth();
+  const { setUser, user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -27,6 +27,7 @@ export default function Nav() {
               isPending ? "pending" : isActive ? "active" : ""
             }>Following</NavLink>
             <NavLink to="/dashboard/discover">Discover</NavLink>
+            <NavLink to={`/dashboard/profile/${user?.username}`}>Profile</NavLink>
           </div>
         </nav> 
   )

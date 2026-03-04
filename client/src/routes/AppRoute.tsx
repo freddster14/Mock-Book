@@ -4,8 +4,10 @@ import SignUp from "../pages/SignUp";
 import SignIn from "../pages/SignIn";
 import Dashboard from "../pages/Dashboard";
 import CreatePostForm from "../components/CreatePostForm";
-import FollowingPosts from "../components/FollowingPosts";
-import DiscoverPosts from "../components/DiscoverPosts";
+import FollowingPosts from "../pages/FollowingPosts";
+import DiscoverPosts from "../pages/DiscoverPosts";
+import Profile from "../pages/Profile";
+import { apiFetch } from "../api/fetch";
 
 export const router = createBrowserRouter([
   {
@@ -23,13 +25,19 @@ export const router = createBrowserRouter([
       {
         path: "discover",
         Component: DiscoverPosts
-      }
+      },
+      {
+        path: "profile/:user",
+        Component: Profile,
+        loader: async ({ params }) => await apiFetch(`/users/${params.user}`)
+      },
+      {
+        path: "create-post",
+        Component: CreatePostForm,
+      },
     ]
   },
-  {
-    path: "/create-post",
-    Component: CreatePostForm,
-  },
+ 
   {
     path: "/sign-up",
     Component: SignUp,

@@ -22,3 +22,10 @@ export interface UserToken {
     username: string;
 }
 export type UserRes = Pick<User, "id" | "username" | "avatarUrl">;
+export type ProfileRes = UserRes & {
+    bio: string;
+    _count: {
+        followers: number;
+        following: number;
+    };
+};

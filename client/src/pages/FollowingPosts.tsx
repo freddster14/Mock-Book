@@ -3,19 +3,19 @@ import { apiFetch } from "../api/fetch";
 import { useState } from "react";
 import { useEffect } from "react";
 import { ApiError } from "../types";
-import Like from "./Like";
-import PostComment from "./Comment";
-import Follow from "./Follow";
-import SearchNew from "./SearchNew";
+import { Link, NavLink } from "react-router";
+import Follow from "../components/Follow";
+import Like from "../components/Like";
+import PostComment from "../components/Comment";
 
-export default function DiscoverPosts() {
+export default function FollowingPosts() {
   const [ posts, setPosts ] = useState<PostsRes[]>([]);
   const [ error, setError ] = useState<ApiError | null>(null);
   const [ loading, setLoading ] = useState(true);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const res = await apiFetch(`/posts/discover`);
+      const res = await apiFetch(`/posts`);
       if(res.success) {
         setPosts(res.data);
       } else if(res.error instanceof ApiError) {
@@ -28,27 +28,32 @@ export default function DiscoverPosts() {
     fetchPosts();
   }, []);
 
-  if(loading) {
+  if (loading) {
     return <div>Loading...</div>
   }
 
   return (
     <div>
-      <SearchNew />
       {error && <div>{error.msg}</div>}
-      {posts.map(post => ( <Post key={post.id} post={post} /> ))}
+      {posts.length > 0 
+      ? posts.map(post => ( <Post key={post.id} post={post} />))
+      : <p>Follow users to view their posts here. <Link to="/dashboard/discover">View other users posts.</Link></p>
+      }
     </div>
   )
 }
 
 function Post({ post }: { post: PostsRes }) {
-  console.log(post)
 
   return (
     <div>
       <div>
-        {post.author.avatarUrl ? <img src={post.author.avatarUrl} /> : <div>{post.author.username[0]}</div>}
-        <p>Author: {post.author.username}</p>
+        <NavLink to={`/dashboard/profile/${post.author.username}`}>
+          {post.author.avatarUrl ? <img src={post.author.avatarUrl} /> : <div>{post.author.username[0]}</div>}
+        </NavLink>
+        <NavLink to={`/dashboard/profile/${post.author.username}`}>
+          <p>Author: {post.author.username}</p>
+        </NavLink>
         <Follow recipientId={post.authorId}/>
       </div>
       <h2>{post.content}</h2>
