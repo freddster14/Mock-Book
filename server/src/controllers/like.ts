@@ -61,6 +61,26 @@ export const postLikes = async (req: Request<{ postId: string }>, res: Response<
   }
 }
 
+export const likeStatus = async (req: Request<{ postId: string }>, res: Response<ApiResult<{ status: string }>>) => {
+  const { postId } = req.params;
+  try {
+    const like = await prisma.like.count({
+      where: {
+        postId: parseInt(postId),
+        userId: req.user.userId
+      }
+    })
+
+    if (like !== 0) {
+      return res.status(200).json({ success: true, data: { status: "liked"}})
+    } else {
+      return res.status(200).json({ success: true, data: { status: "not liked "}})
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
+  }
+}
+
 export const remove = async (req: Request<{ postId: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { postId } = req.params;
   try {

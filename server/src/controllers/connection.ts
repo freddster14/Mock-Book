@@ -92,6 +92,26 @@ export const unfollow = async (req: Request<{ recipientId: string }>, res: Respo
   }
 }
 
+export const followingStatus = async (req: Request<{ recipientId: string }>, res: Response<ApiResult<{ status: string }>>) => {
+  const { recipientId } = req.params;
+  try {
+    const connection = await prisma.connection.count({
+      where: {
+        userId: req.user.userId,
+        recipientId: parseInt(recipientId)
+      }
+    });
+    console.log(connection)
+    if (connection !== 0) {
+      return res.status(200).json({ success: true, data: { status: "following" }})
+    } else {
+      return res.status(200).json({ success: true, data: { status: "not following" }})
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
+  }
+}
+
 export const remove = async (req: Request<{ recipientId: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { recipientId } = req.params;
   try {

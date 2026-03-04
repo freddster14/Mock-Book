@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiFetch } from "../api/fetch";
 
 export default function Follow({ recipientId } : { recipientId : number}) {
   const [ following, setFollowing ] = useState(false);
   const [ isSubmitting, setIsSubmitting ] = useState(false)
+
+  useEffect(() => {
+    const followingStatus = async () => {
+      const res = await apiFetch(`/connections/status/${recipientId}`)
+      if (res.data.status === "following") setFollowing(true)
+    }
+    followingStatus()
+  }, [])
 
   const followUser = async () => {
     setIsSubmitting(true);

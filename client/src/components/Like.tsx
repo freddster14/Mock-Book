@@ -6,6 +6,14 @@ export default function Like({ likeCount, postId }: { likeCount: number, postId:
   const [ likeStatus, setLikeStatus ] = useState(false) // Add feature where like is tracked on post
   const [ count, setCount ] = useState(likeCount)
 
+  useEffect(() => {
+    const checkLikeStatus = async () => {
+      const res = await apiFetch(`/likes/status/${postId}`)
+      if (res.data.status === "liked") setLikeStatus(true)
+      // show error for success false
+    }
+    checkLikeStatus()
+  }, [])
 
   const handleLike = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -22,7 +30,6 @@ export default function Like({ likeCount, postId }: { likeCount: number, postId:
     timerRef.current = setTimeout( async () => {
       if(!likeStatus) {
         const res = await apiFetch(`/likes/${postId}`, { method: "POST" })
-        console.log(res)
         if(!res.success) {
           setLikeStatus(false);
           setCount(prevCount)

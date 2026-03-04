@@ -3,6 +3,7 @@ import { apiFetch } from "../api/fetch"
 import {  PostComments } from "shared-types"
 import { ApiError } from "../types"
 import { useAuth } from "../context/AuthContext"
+import { NavLink } from "react-router"
 
 export default function PostComment({ commentCount, postId}: { commentCount: number, postId: number}) {
   const { user } = useAuth();
@@ -57,7 +58,7 @@ export default function PostComment({ commentCount, postId}: { commentCount: num
       
     }
   }
-  console.log(comments)
+
   return (
     <>
       <p><button onClick={loadComments}>CommentLogo</button> {count}</p>
@@ -80,10 +81,14 @@ export default function PostComment({ commentCount, postId}: { commentCount: num
           { !error && comments.length > 0
           ? comments?.map(c => (
               <div key={c.id}>
-                <div>ProfilePic</div>  {/* Add onClick show navigate to profile */}
+                <NavLink to={`/dashboard/profile/${c.author.username}`}>
+                  {c.author.avatarUrl ? <img src={c.author.avatarUrl} /> : <div>{c.author.username[0]}</div>}
+                </NavLink>
                 <div>
                   <div>
-                    <p>{c.author.username}</p>
+                    <NavLink to={`/dashboard/profile/${c.author.username}`}>
+                      <p>Author: {c.author.username}</p>
+                    </NavLink>                    
                     <p>{new Date(c.createdAt).toLocaleString()}</p>
                   </div>
                   <p>{c.content}</p>

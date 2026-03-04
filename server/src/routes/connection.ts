@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { verifyUserToken } from "../middleware/authentication";
-import { follow, followers, following, remove, unfollow } from "../controllers/connection";
+import { follow, followers, following, followingStatus, remove, unfollow } from "../controllers/connection";
 
 export const connections = Router();
 
 connections.get('/following', verifyUserToken, following);
 connections.get('/followers', verifyUserToken, followers);
+connections.get('/status/:recipientId', verifyUserToken, followingStatus)
 
 connections.post('/follow/:recipientId', verifyUserToken, follow);
 

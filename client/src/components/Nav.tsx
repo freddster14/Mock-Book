@@ -11,7 +11,6 @@ export default function Nav() {
       await apiFetch('/logout', { method: 'POST' })
       setUser(null)
     } catch (error) {
-      console.error(error)
     }
   }
   return (

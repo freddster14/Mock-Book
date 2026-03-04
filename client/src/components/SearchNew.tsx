@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { UserRes } from "shared-types";
 import { apiFetch } from "../api/fetch";
+import { NavLink } from "react-router";
 
 export default function SearchNew() {
   const [ search, setSearch ] = useState("");
@@ -50,10 +51,10 @@ export default function SearchNew() {
       loading ? <p>Loading...</p>
       : !loading && results.length > 0 
       ? results.map(r => (
-          <div key={r.id}>
+          <NavLink key={r.id} to={`/dashboard/profile/${r.username}`}>
             {r.avatarUrl ? <img src={r.avatarUrl} /> : <div>{r.username[0]}</div>}
             <p>{r.username}</p>
-          </div>
+          </NavLink>
         ))
     
       : <p>No results</p>

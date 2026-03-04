@@ -54,7 +54,6 @@ function Post({ post }: { post: PostsRes }) {
         <NavLink to={`/dashboard/profile/${post.author.username}`}>
           <p>Author: {post.author.username}</p>
         </NavLink>
-        <Follow recipientId={post.authorId}/>
       </div>
       <h2>{post.content}</h2>
       <p>{new Date(post.createdAt).toLocaleString()}</p>
