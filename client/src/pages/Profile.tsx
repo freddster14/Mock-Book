@@ -1,10 +1,9 @@
-import { useLoaderData, useNavigate, useSearchParams } from "react-router";
-import { PostsRes, ProfileRes } from "shared-types";
+import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from "react-router";
+import { ProfileRes } from "shared-types";
 import Follow from "../components/Follow";
 import { useAuth } from "@/context/AuthContext";
 import { Virtuoso } from "react-virtuoso";
 import Post from "@/components/Post";
-import { useState } from "react";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -46,14 +45,16 @@ export default function Profile() {
 
 export function UserPosts() {
   const [searchParams] = useSearchParams();
-
+  const { user } = useParams();
   const res = useLoaderData()
   const initialIndex = parseInt(searchParams.get("index") || "0");
   const posts = res.data;
-
+  console.log(res)
   return (
-    <Virtuoso
-      style={{ height: "400px", width: "100%" }}
+    <>
+      <Link to={`/dashboard/profile/${user}`}>Back to Profile</Link>
+     <Virtuoso
+      style={{ height: "60dvh", width: "100%" }}
       totalCount={posts.length}
       initialTopMostItemIndex={initialIndex}
       itemContent={i => (
@@ -62,5 +63,7 @@ export function UserPosts() {
         </div>
       )}
     />
+    </>
+   
   );
 }
