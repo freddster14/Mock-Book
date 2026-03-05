@@ -22,8 +22,8 @@ export default function Profile() {
         <p>{currUser.username}</p>
         <div>
           <p>Posts {currUser.posts.length}</p>
-          <p>Followers {currUser._count.followers}</p>
-          <p>Following {currUser._count.following}</p>
+          <Link to={`/dashboard/connections/${currUser.username}/followers`}>Followers {currUser._count.followers}</Link>
+          <Link to={`/dashboard/connections/${currUser.username}/following`}>Following {currUser._count.following}</Link>
         </div>
         {user?.userId !== currUser.id && <Follow recipientId={currUser.id} />}
       </div>

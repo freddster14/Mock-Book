@@ -4,8 +4,8 @@ import { follow, followers, following, followingStatus, remove, unfollow } from 
 
 export const connections = Router();
 
-connections.get('/following', verifyUserToken, following);
-connections.get('/followers', verifyUserToken, followers);
+connections.get('/:username/following', verifyUserToken, following);
+connections.get('/:username/followers', verifyUserToken, followers);
 connections.get('/status/:recipientId', verifyUserToken, followingStatus)
 
 connections.post('/follow/:recipientId', verifyUserToken, follow);

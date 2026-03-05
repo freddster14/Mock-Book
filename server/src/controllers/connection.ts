@@ -27,11 +27,12 @@ export const follow = async (req: Request<{ recipientId: string }>, res: Respons
   }
 }
 
-export const followers = async (req: Request, res: Response<ApiResult<Follower[]>>) => {
+export const followers = async (req: Request<{ username: string }>, res: Response<ApiResult<Follower[]>>) => {
+  const { username } = req.params
   try {
     // Find all the users that the current user is following
     const followers = await prisma.connection.findMany({
-      where: { recipientId: req.user.userId },
+      where: { recipient: { username }},
       include: {
         user: {
           select: {
@@ -42,18 +43,28 @@ export const followers = async (req: Request, res: Response<ApiResult<Follower[]
         }
       }
     });
+    const users = followers.map(f => {
+      return {
+        username: f.user.username,
+        userId: f.user.id,
+        avatarUrl: f.user.avatarUrl,
+        createdAt: f.createdAt
+      }
+     
+    })
 
-    return res.status(200).json({ success: true, data: followers })
+    return res.status(200).json({ success: true, data: users })
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
   }
 }
 
-export const following = async (req: Request, res: Response<ApiResult<Following[]>>) => {
+export const following = async (req: Request<{ username: string }>, res: Response<ApiResult<Following[]>>) => {
+  const { username } = req.params
   try {
     // Find all the users that are following the current user
     const following = await prisma.connection.findMany({
-      where: { userId: req.user.userId },
+      where: { user: { username: username }},
       include: {
         recipient: {
           select: {
@@ -64,7 +75,18 @@ export const following = async (req: Request, res: Response<ApiResult<Following[
         }
       }
     })
-    return res.status(200).json({ success: true, data: following })
+    const users = following.map(f => {
+      return {
+        username: f.recipient.username,
+        userId: f.recipient.id,
+        avatarUrl: f.recipient.avatarUrl,
+        createdAt: f.createdAt
+      }
+     
+    })
+
+
+    return res.status(200).json({ success: true, data: users })
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
   }
@@ -101,7 +123,7 @@ export const followingStatus = async (req: Request<{ recipientId: string }>, res
         recipientId: parseInt(recipientId)
       }
     });
-    console.log(connection)
+
     if (connection !== 0) {
       return res.status(200).json({ success: true, data: { status: "following" }})
     } else {

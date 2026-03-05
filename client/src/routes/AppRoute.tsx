@@ -9,6 +9,8 @@ import DiscoverPosts from "../pages/DiscoverPosts";
 import Profile, { UserPosts } from "../pages/Profile";
 import { apiFetch } from "../api/fetch";
 import Error from "@/pages/Error";
+import UserConnection from "@/pages/UserConnections";
+import Connections from "@/components/Connections";
 
 export const router = createBrowserRouter([
   {
@@ -29,9 +31,9 @@ export const router = createBrowserRouter([
         Component: DiscoverPosts
       },
       {
-        path: "profile/:user",
+        path: "profile/:username",
         Component: Profile,
-        loader: async ({ params }) => await apiFetch(`/users/${params.user}`),
+        loader: async ({ params }) => await apiFetch(`/users/${params.username}`),
         
       },
       {
@@ -43,6 +45,22 @@ export const router = createBrowserRouter([
         path: "create-post",
         Component: CreatePostForm,
       },
+      {
+        path: "connections/:username",
+        Component: UserConnection,
+        children: [
+          {
+            path: "followers",
+            Component: Connections,
+            loader: async ({ params }) => await apiFetch(`/connections/${params.username}/followers`)
+          },
+          {
+            path: "following",
+            Component: Connections,
+            loader: async ({ params }) => await apiFetch(`/connections/${params.username}/following`)
+          }
+        ]
+      }
     ]
   },
  

@@ -4,9 +4,5 @@ export interface Connection {
     recipientId: number;
     createdAt: Date;
 }
-export type Follower = Connection & {
-    user: UserRes;
-};
-export type Following = Connection & {
-    recipient: UserRes;
-};
+export type Follower = Pick<Connection, "userId" | "createdAt"> & Omit<UserRes, "id">;
+export type Following = Pick<Connection, "userId" | "createdAt"> & Omit<UserRes, "id">;
