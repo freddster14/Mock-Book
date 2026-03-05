@@ -49,7 +49,7 @@ export function UserPosts() {
   const res = useLoaderData()
   const initialIndex = parseInt(searchParams.get("index") || "0");
   const posts = res.data;
-  console.log(res)
+
   return (
     <>
       <Link to={`/dashboard/profile/${user}`}>Back to Profile</Link>

@@ -24,8 +24,9 @@ export type UserSignInForm = {
 }
 
 export interface UserToken {
-  userId: number
-  username: string
+  userId: number,
+  username: string,
+  avatarUrl: string | null
 }
 
 export type UserRes = Pick<User, "id" | "username" | "avatarUrl">

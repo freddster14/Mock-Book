@@ -15,7 +15,7 @@ export const verifyUserToken = (req: Request, res: Response, next: NextFunction)
     if (err instanceof JsonWebTokenError) return res.status(401).json({ success: false, error: { type: 'authentication', msg: "Invalid Token"}})
     
     const payload = decoded as UserToken;
-    req.user = { userId: payload.userId, username: payload.username };
+    req.user = { userId: payload.userId, username: payload.username, avatarUrl: payload.avatarUrl };
     next();
   });
 }

@@ -32,7 +32,7 @@ export const create = [
 
       // Create the token
       const token = jwt.sign(
-        { userId: user.id, userName: user.username }, 
+        { userId: user.id, userName: user.username, avatarUrl: user.avatarUrl }, 
         process.env.SECRET!,
         { expiresIn: "15m" }
       )
@@ -102,7 +102,7 @@ export const signIn = [
 
       // Create the token
       const token = jwt.sign(
-        { userId: user.id, username: user.username },
+        { userId: user.id, username: user.username, avatarUrl: user.avatarUrl },
         process.env.SECRET!,
         { expiresIn: '15m'}
       );
@@ -115,7 +115,7 @@ export const signIn = [
         maxAge: 15 * 60 * 1000 // 15 minutes
       })
 
-      return res.status(200).json({ success: true, data: { userId: user.id, username: user.username } })
+      return res.status(200).json({ success: true, data: { userId: user.id, username: user.username, avatarUrl: user.avatarUrl } })
     } catch (error) {
       return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }})
     }

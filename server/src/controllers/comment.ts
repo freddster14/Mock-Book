@@ -1,4 +1,4 @@
-import { ApiResult, CommentBody, PostComments } from "shared-types";
+import { ApiResult, Comment, CommentBody, PostComments } from "shared-types";
 import { handleValidation, validateComment } from "../middleware/validation";
 import { Request, Response } from "express";
 import { prisma } from "../../prisma/client";
@@ -7,7 +7,7 @@ import { Post } from "../../generated/prisma/client";
 export const comment = [
   ...validateComment,
   handleValidation,
-  async (req: Request<{ postId: string }, {}, CommentBody>, res: Response<ApiResult<{ msg: string }>>) => {
+  async (req: Request<{ postId: string }, {}, CommentBody>, res: Response<ApiResult<Comment>>) => {
     const { postId } = req.params;
     const { content } = req.body;
     try {
@@ -16,14 +16,23 @@ export const comment = [
       if (!post) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "Post not found" }});
 
       // Create the comment
-      await prisma.comment.create({
+      const comment = await prisma.comment.create({
         data: {
           content,
           postId: parseInt(postId),
           authorId: req.user.userId
+        },
+        include: {
+          author: {
+            select: {
+              username: true,
+              id: true,
+              avatarUrl: true
+            }
+          }
         }
       });
-      return res.status(201).json({ success: true, data: { msg: "Commented" }})
+      return res.status(201).json({ success: true, data: comment})
     } catch (error) {
       return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
     }
@@ -43,7 +52,7 @@ export const postComments = async(req: Request<{ postId: string }>, res: Respons
     const postComments: PostComments[] = await prisma.comment.findMany({
       where: { postId: parseInt(postId) },
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'asc'
       },
       include: {
         author: {
@@ -65,9 +74,16 @@ export const remove = async (req: Request<{ id: string }>, res: Response<ApiResu
   const { id } = req.params;
   try {
     // Check if the comment exists
-    const comment = await prisma.comment.findUnique({ where: { id: parseInt(id) }});
+    const comment = await prisma.comment.findUnique({
+      where: { id: parseInt(id) },
+      include: { 
+        post: {
+          select: { authorId: true }
+        }
+      }
+    });
     if (!comment) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "Commment not found" }});
-    if(comment.authorId !== req.user.userId) return res.status(403).json({ success: false, error: { type: 'authentication', msg: "Can not remove"}})
+    if(comment.authorId !== req.user.userId && comment.post.authorId !== req.user.userId) return res.status(403).json({ success: false, error: { type: 'authentication', msg: "Can not remove"}})
     
     // Delete the comment
     await prisma.comment.delete({ where: { id: parseInt(id) }});

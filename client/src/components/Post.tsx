@@ -45,7 +45,7 @@ export default function Post({ post }: { post: PostsRes }) {
       <h2>{post.content}</h2>
       <p>{new Date(post.createdAt).toLocaleString()}</p>
       <Like likeCount={post._count.likes} postId={post.id}/>
-      <PostComment commentCount={post._count.comments} postId={post.id}/>
+      <PostComment commentCount={post._count.comments} postId={post.id} authorId={post.authorId}/>
       {post.imgUrl && <img src={post.imgUrl} alt={post.content} />}
     </div>
   )
