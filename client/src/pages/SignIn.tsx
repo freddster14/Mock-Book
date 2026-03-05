@@ -4,12 +4,16 @@ import { ApiError } from "../types";
 import { Link, Navigate } from "react-router";
 import { ExpressError } from "shared-types";
 import { useAuth } from "../context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SignIn() {
   const { user, loading, setUser } = useAuth();
   const [ identifier, setIdentifier ] = useState("");
   const [ password, setPassword ] = useState("");
-  const [ errors, setErrors ] = useState<string | ExpressError[] | null >(null)
+  const [ errors, setErrors ] = useState<string | { identifier: undefined | string, password: string | undefined }>({ identifier: undefined, password: undefined })
   const [ isSubmitting, setIsSubmitting ] = useState(false);
 
   if(!loading && user) {
@@ -21,7 +25,7 @@ export default function SignIn() {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    setErrors(null);
+    setErrors({ identifier: undefined, password: undefined });
     if(isSubmitting) return;
     setIsSubmitting(true);
 
@@ -31,7 +35,11 @@ export default function SignIn() {
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.type === "validation") {
-          setErrors(error.data)
+          const organizedErr = {
+            identifier: error.data.find(e => e.path === "identifier")?.msg,
+            password: error.data.find(e => e.path === "password")?.msg,
+          }
+          setErrors(organizedErr)
         } else if (error.type === "authentication") {
           setErrors(error.msg)
         } else {
@@ -42,24 +50,37 @@ export default function SignIn() {
       setIsSubmitting(false)
     }
   }
+  console.log(errors)
   return (
-    <div>
-      <div>
-        <h1>Sign-In</h1>
-        <p>Don't have an account? <Link to="/sign-up">Sign Up</Link></p>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="identifier">Identifier
-          <input type="text" value={identifier} placeholder="Email or Username" onChange={(e) => setIdentifier(e.target.value)} />
-          <p>{Array.isArray(errors) && errors.find(e => e.path === "identifier")?.msg}</p>
-        </label>
-        <label htmlFor="password">Password
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <p>{Array.isArray(errors) && errors.find(e => e.path === "password")?.msg}</p>
-        </label>
-        <p>{errors && typeof errors === "string" ? errors : null}</p>
-        <button type="submit">Sign In</button>
-      </form>
-    </div>
+    <Card className="w-full max-w-lg p-5">
+      <CardHeader>
+        <CardTitle>Sign-In</CardTitle>
+        <CardDescription>Enter email or username to sign-in to your account</CardDescription>
+        <CardAction>
+          <Button variant="link"><Link to="/sign-up">Sign Up</Link></Button>
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} id="sign-in">
+          <FieldGroup>
+            <Field>
+              <FieldLabel  htmlFor="identifier">Identifier</FieldLabel>
+              <Input aria-invalid={(typeof errors === 'object' && errors.identifier !== undefined) || typeof errors === "string" } type="text" value={identifier} id="identifier" placeholder="Email or Username" onChange={(e) => setIdentifier(e.target.value)} />
+              <FieldError>{typeof errors === 'object' && errors.identifier}</FieldError>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <Input aria-invalid={typeof errors === 'object' && errors.password !== undefined || typeof errors === "string"} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <FieldError>{typeof errors === 'object' && errors.password}</FieldError>
+            </Field>
+          </FieldGroup>
+          
+          <FieldError>{errors && typeof errors === "string" ? errors : null}</FieldError>
+        </form>
+      </CardContent>
+      <CardFooter>
+        <Button className="w-full" form="sign-in" type="submit">Sign In</Button>
+      </CardFooter>
+    </Card>
   )
 }
