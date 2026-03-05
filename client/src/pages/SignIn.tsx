@@ -2,7 +2,6 @@ import { useState } from "react";
 import { userFormFetch } from "../api/fetch";
 import { ApiError } from "../types";
 import { Link, Navigate } from "react-router";
-import { ExpressError } from "shared-types";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +49,7 @@ export default function SignIn() {
       setIsSubmitting(false)
     }
   }
-  console.log(errors)
+
   return (
     <Card className="w-full max-w-lg p-5">
       <CardHeader>
@@ -74,7 +73,6 @@ export default function SignIn() {
               <FieldError>{typeof errors === 'object' && errors.password}</FieldError>
             </Field>
           </FieldGroup>
-          
           <FieldError>{errors && typeof errors === "string" ? errors : null}</FieldError>
         </form>
       </CardContent>

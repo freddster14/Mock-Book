@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../prisma/client";
-import { ApiResult, ProfileRes, User, UserRes } from "shared-types";
+import { ApiResult, PostsRes, ProfileRes, User, UserRes } from "shared-types";
 
 export const users = async (req: Request<{}, {}, {}, { limit: string | undefined, search: string | undefined }>, res: Response<ApiResult<UserRes[]>>) => {
   const { limit, search } = req.query;
@@ -43,7 +43,16 @@ export const profile = async (req: Request<{ username: string }>, res: Response<
         createdAt: true,
       },
       include: {
-        posts: true,
+        posts: {
+          select: {
+            id: true,
+            content: true,
+            imgUrl: true,
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+        },
         _count: {
           select: {
             followers: true,

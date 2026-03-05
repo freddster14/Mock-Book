@@ -15,19 +15,19 @@ export default function Nav() {
   }
   return (
     <nav>
-          <div>
-            <button onClick={() => navigate('/create-post')}>Create Post</button>
-            <button onClick={handleLogout}>Logout</button>
-          </div> 
-          <div>
-            <NavLink
-            to="/dashboard"
-            className={({ isActive, isPending }) => 
-              isPending ? "pending" : isActive ? "active" : ""
-            }>Following</NavLink>
-            <NavLink to="/dashboard/discover">Discover</NavLink>
-            <NavLink to={`/dashboard/profile/${user?.username}`}>Profile</NavLink>
-          </div>
-        </nav> 
+      <div>
+        <button onClick={() => navigate('/dashboard/create-post')}>Create Post</button>
+        <button onClick={handleLogout}>Logout</button>
+      </div> 
+      <div>
+        <NavLink
+        to="/dashboard"
+        className={({ isActive, isPending }) => 
+          isPending ? "pending" : isActive ? "active" : ""
+        }>Following</NavLink>
+        <NavLink to="/dashboard/discover">Discover</NavLink>
+        <NavLink to={`/dashboard/profile/${user?.username}`}>Profile</NavLink>
+      </div>
+    </nav> 
   )
 }

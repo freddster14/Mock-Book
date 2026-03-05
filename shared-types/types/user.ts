@@ -1,4 +1,4 @@
-import { Post } from "./post"
+import { Post, PostsRes } from "./post"
 
 export interface User {
   id: number,
@@ -31,7 +31,7 @@ export interface UserToken {
 export type UserRes = Pick<User, "id" | "username" | "avatarUrl">
 
 export type ProfileRes = UserRes & {
-  posts: Post[]
+  posts: Pick<Post, "id" | "content" | "imgUrl">[],
   bio: string,
   _count: {
     followers: number,

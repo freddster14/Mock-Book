@@ -6,8 +6,9 @@ import Dashboard from "../pages/Dashboard";
 import CreatePostForm from "../components/CreatePostForm";
 import FollowingPosts from "../pages/FollowingPosts";
 import DiscoverPosts from "../pages/DiscoverPosts";
-import Profile from "../pages/Profile";
+import Profile, { UserPosts } from "../pages/Profile";
 import { apiFetch } from "../api/fetch";
+import Error from "@/pages/Error";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
   {
     path: "/dashboard",
     Component: Dashboard,
+    ErrorBoundary: Error,
     children: [
       {
         index: true,
@@ -29,7 +31,13 @@ export const router = createBrowserRouter([
       {
         path: "profile/:user",
         Component: Profile,
-        loader: async ({ params }) => await apiFetch(`/users/${params.user}`)
+        loader: async ({ params }) => await apiFetch(`/users/${params.user}`),
+        
+      },
+      {
+        path: "profile/:user/posts/:userId",
+        Component: UserPosts,
+        loader: async ({ params }) => await apiFetch(`/posts/${params.userId}`),
       },
       {
         path: "create-post",
