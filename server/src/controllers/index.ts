@@ -32,7 +32,7 @@ export const create = [
 
       // Create the token
       const token = jwt.sign(
-        { userId: user.id, userName: user.username, avatarUrl: user.avatarUrl }, 
+        { userId: user.id, username: user.username, avatarUrl: user.avatarUrl }, 
         process.env.SECRET!,
         { expiresIn: "15m" }
       )

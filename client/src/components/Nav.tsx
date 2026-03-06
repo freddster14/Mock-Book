@@ -13,6 +13,7 @@ export default function Nav() {
     } catch (error) {
     }
   }
+  console.log(user)
   return (
     <nav>
       <div>
