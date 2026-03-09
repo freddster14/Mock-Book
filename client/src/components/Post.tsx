@@ -7,6 +7,9 @@ import PostComment from "./Comment";
 import { Button } from "./ui/button";
 import { apiFetch } from "@/api/fetch";
 import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Separator } from "./ui/separator";
+import TimeAgo from "timeago-react";
 
 export default function Post({ post }: { post: PostsRes }) {
   const { user } = useAuth();
@@ -32,20 +35,34 @@ export default function Post({ post }: { post: PostsRes }) {
 
   return (
     <div>
-      <div>
+      <div className="flex gap-3 p-2 h-fit">
         <NavLink to={`/dashboard/profile/${post.author.username}`}>
-          {post.author.avatarUrl ? <img src={post.author.avatarUrl} /> : <div>{post.author.username[0]}</div>}
+          <Avatar size="lg">
+          {post.author.avatarUrl
+            ? <AvatarImage src={post.author.avatarUrl} />
+            : <AvatarFallback>{post.author.username[0]}</AvatarFallback>
+          }
+          </Avatar>
         </NavLink>
-        <NavLink to={`/dashboard/profile/${post.author.username}`}>
-          <p>Author: {post.author.username}</p>
+        <NavLink className="text-sm" to={`/dashboard/profile/${post.author.username}`}>
+          <p>{post.author.username}</p>
+          <TimeAgo  datetime={new Date(post.createdAt).toLocaleString()}/>
         </NavLink>
-        {user?.userId !== post.authorId && <Follow recipientId={post.authorId}/>}
-        {user?.userId === post.authorId && <Button onClick={handleDelete}>{ isSubmitting ? "Deleting..." : "Delete" }</Button>} 
+        <div className="ml-auto">
+          {user?.userId !== post.authorId && <Follow recipientId={post.authorId}/>}
+          {user?.userId === post.authorId && <Button onClick={handleDelete}>{ isSubmitting ? "Deleting..." : "Delete" }</Button>} 
+        </div>
       </div>
-      <h2>{post.content}</h2>
-      <p>{new Date(post.createdAt).toLocaleString()}</p>
-      <Like likeCount={post._count.likes} postId={post.id}/>
-      <PostComment commentCount={post._count.comments} postId={post.id} authorId={post.authorId}/>
+      <Separator />
+      <div className="pt-2 pb-2">
+        <p>{post.content}</p>
+      </div>
+      <Separator />
+      <div className="flex gap-3">
+        <Like likeCount={post._count.likes} postId={post.id}/>
+        <PostComment commentCount={post._count.comments} postId={post.id} authorId={post.authorId}/>
+      </div>
+   
       {post.imgUrl && <img src={post.imgUrl} alt={post.content} />}
     </div>
   )

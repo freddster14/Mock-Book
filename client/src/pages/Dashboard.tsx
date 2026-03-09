@@ -1,6 +1,4 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router";
-import { apiFetch } from "../api/fetch";
-import { useAuth } from "../context/AuthContext";
+import { Outlet } from "react-router";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import Nav from "../components/Nav";
 
@@ -8,7 +6,7 @@ export default function Dashboard() {
 
 
   return (
-    <div>
+    <div className="w-full max-w-sm">
       <ProtectedRoute>
         
         <Outlet />

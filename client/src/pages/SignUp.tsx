@@ -11,7 +11,7 @@ export default function SignUp() {
   const [ formData, setFormData ] = useState<UserForm>({
     username: '',
     email: '',
-    bio: 'Hello World!',
+    bio: '',
     password: '',
     confirm: ''
   })
@@ -25,7 +25,7 @@ export default function SignUp() {
   return (
     <>
     {step === 1 && <AccountSetupForm formData={formData} setFormData={setFormData} setStep={setStep}/>}
-    {step === 2 && <CreateAccountForm formData={formData} setFormData={setFormData} />}
+    {step === 2 && <CreateAccountForm formData={formData} setFormData={setFormData} setStep={setStep} />}
     </>
   )
 }

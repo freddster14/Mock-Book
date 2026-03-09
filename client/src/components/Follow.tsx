@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../api/fetch";
+import { Button } from "./ui/button";
 
 export default function Follow({ recipientId } : { recipientId : number}) {
   const [ following, setFollowing ] = useState(false);
@@ -31,6 +32,6 @@ export default function Follow({ recipientId } : { recipientId : number}) {
   }
 
   return (
-    <button disabled={isSubmitting} onClick={followUser}>{following ? "Following" : "Follow"}</button>
+    <Button size="sm" disabled={isSubmitting} onClick={followUser}>{following ? "Following" : "Follow"}</Button>
   )
 }

@@ -47,11 +47,7 @@ export const create = [
 
       return res.status(201).json({ success: true, data: { msg: "Created" } })
     } catch (error) {
-      if (error instanceof Error) {
-        return res.status(500).json({ success: false, error: { type: 'server', msg: error.message }})
-      } else {
-        return res.status(500).json({ success: false, error: { type: "server", msg: "Server Error" }})
-      }
+      return res.status(500).json({ success: false, error: { type: "server", msg: "Server Error" }})
     }
   }
 ]

@@ -13,14 +13,13 @@ export default function Nav() {
     } catch (error) {
     }
   }
-  console.log(user)
   return (
     <nav>
-      <div>
+      <div className="w-full justify-center  flex fixed p-5 left-50 top-0 -translate-x-50 gap-10">
         <button onClick={() => navigate('/dashboard/create-post')}>Create Post</button>
         <button onClick={handleLogout}>Logout</button>
       </div> 
-      <div>
+      <div className="w-full justify-center  flex fixed p-5 left-50 bottom-0 -translate-x-50 gap-10">
         <NavLink
         to="/dashboard"
         className={({ isActive, isPending }) => 
