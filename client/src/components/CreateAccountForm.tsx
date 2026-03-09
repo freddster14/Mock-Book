@@ -1,4 +1,4 @@
-import type { ExpressError, UserForm } from "shared-types";
+import type { UserForm } from "shared-types";
 import { userFormFetch } from "../api/fetch";
 import React, { useState } from "react";
 import { validateCreateAccountForm } from "../utils/formValidation";

@@ -1,7 +1,6 @@
 import type { UserForm } from "shared-types";
 import { userFormFetch } from "../api/fetch";
 import { useState } from "react";
-import { ExpressError } from "shared-types";
 import { ApiError } from "../types";
 import { Link } from "react-router";
 import { validateAccountSetupForm } from "../utils/formValidation";

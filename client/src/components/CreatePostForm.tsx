@@ -25,7 +25,7 @@ export default function CreatePostForm() {
           "Content-Type": "application/json",
         },
       }
-      const res = await apiFetch("/posts", options);
+      await apiFetch("/posts", options);
       navigate("/dashboard");
     } catch (error) {
       if (error instanceof ApiError) {

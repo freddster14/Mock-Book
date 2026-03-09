@@ -70,7 +70,7 @@ export default function DiscoverPosts() {
         endReached={loadMore}
         useWindowScroll
         atBottomThreshold={300}
-        itemContent={(i, p) => (
+        itemContent={(_i, p) => (
           <div>
             <Post post={p} />
             <Separator className="mt-4 mb-4" />

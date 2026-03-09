@@ -1,5 +1,5 @@
 import { AccountCreationError, AccountSetupError } from "@/types/formErrors";
-import { ExpressError, UserForm } from "shared-types";
+import { UserForm } from "shared-types";
 
 export const validateAccountSetupForm = (formData: UserForm) => {
   const tempErrors: AccountSetupError = { email: undefined , password: undefined, confirm: undefined };

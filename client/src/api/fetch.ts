@@ -2,7 +2,7 @@ import type { UserForm, UserSignInForm } from "shared-types";
 import { ApiError } from "../types";
 
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.MODE === 'production' ? '/api' : "http://localhost:3000";
 
 export const apiFetch = async (endpoint: string, options?: RequestInit) => {
   try {
