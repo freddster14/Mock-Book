@@ -1,4 +1,4 @@
-import { Post, PostsRes } from "./post"
+import { Post } from "./post"
 
 export interface User {
   id: number,
