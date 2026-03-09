@@ -3,10 +3,15 @@ import { prisma } from "../../prisma/client";
 import { Request, Response } from "express";
 import { handleValidation, validateComment, validatePost } from "../middleware/validation";
 
-export const followingPosts = async (req: Request, res: Response<ApiResult<PostsRes[]>>) => {
+export const followingPosts = async (req: Request<{}, {}, {}, { skip: string }>, res: Response<ApiResult<PostsRes[]>>) => {
+  const { skip } = req.query;
+  const skipCount = parseInt(skip || "0");
+
   try {
     // Find posts from users the current user is following
     const posts: PostsRes[] = await prisma.post.findMany({
+      skip: skipCount,
+      take: 5,
       where: { 
         author: { followers: { some: { userId: req.user.userId }}},
         authorId: { not: req.user.userId }
@@ -36,10 +41,14 @@ export const followingPosts = async (req: Request, res: Response<ApiResult<Posts
   }
 }
 
-export const discoverPosts = async (req: Request, res: Response<ApiResult<PostsRes[]>>) => {
+export const discoverPosts = async (req: Request<{}, {}, {}, { skip: string }>, res: Response<ApiResult<PostsRes[]>>) => {
+  const { skip } = req.query;
+  const skipCount = parseInt(skip || "0");
   try {
     // Find posts from users the current user is not following
     const posts: PostsRes[]  = await prisma.post.findMany({
+      skip: skipCount,
+      take: 5,
       where: {
         author: { followers: { none: { userId: req.user.userId }}},
         authorId: { not: req.user.userId } ,
