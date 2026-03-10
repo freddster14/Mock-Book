@@ -1,23 +1,20 @@
-import { ApiResult, Comment, CommentBody, Like, Post, PostBody, PostComments, PostLikes, PostsRes, UserToken } from "shared-types";
+import { ApiResult, Post, PostBody, PostsRes } from "shared-types";
 import { prisma } from "../../prisma/client";
 import { Request, Response } from "express";
 import { handleValidation, validateComment, validatePost } from "../middleware/validation";
+import { Prisma } from "../../generated/prisma/client";
 
-export const followingPosts = async (req: Request<{}, {}, {}, { skip: string }>, res: Response<ApiResult<PostsRes[]>>) => {
-  const { skip } = req.query;
-  const skipCount = parseInt(skip || "0");
-
+export const followingPosts = async (req: Request<{}, {}, {}, { cursor: string }>, res: Response<ApiResult<PostsRes[]>>) => {
+  const { cursor } = req.query;
   try {
-    // Find posts from users the current user is following
-    const posts: PostsRes[] = await prisma.post.findMany({
-      skip: skipCount,
+    const queryArgs: Prisma.PostFindManyArgs = {
       take: 5,
       where: { 
         author: { followers: { some: { userId: req.user.userId }}},
         authorId: { not: req.user.userId }
       },
       orderBy: {
-        createdAt: 'desc'
+        id: 'desc'
       },
       include: {
         author: {
@@ -34,27 +31,34 @@ export const followingPosts = async (req: Request<{}, {}, {}, { skip: string }>,
           }
         }
       },
-    });
+    }
+
+    if (cursor) {
+      console.log(cursor, "ran")
+      queryArgs.cursor = { id: Number(cursor) };
+      queryArgs.skip = 1;
+    } 
+    // Find posts from users the current user is following
+    const posts = await prisma.post.findMany(queryArgs) as unknown as PostsRes[];
     return res.status(200).json({ success: true, data: posts });
   } catch (error) {
+    console.error(error)
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
   }
 }
 
-export const discoverPosts = async (req: Request<{}, {}, {}, { skip: string }>, res: Response<ApiResult<PostsRes[]>>) => {
-  const { skip } = req.query;
-  const skipCount = parseInt(skip || "0");
+export const discoverPosts = async (req: Request<{}, {}, {}, { cursor: string }>, res: Response<ApiResult<PostsRes[]>>) => {
+  const { cursor } = req.query;
   try {
-    // Find posts from users the current user is not following
-    const posts: PostsRes[]  = await prisma.post.findMany({
-      skip: skipCount,
+
+    const queryArgs: Prisma.PostFindManyArgs = {
       take: 5,
       where: {
         author: { followers: { none: { userId: req.user.userId }}},
         authorId: { not: req.user.userId } ,
       },
       orderBy: {
-        createdAt: 'desc'
+        id: 'desc'
       },
       include: {
         author: {
@@ -71,7 +75,14 @@ export const discoverPosts = async (req: Request<{}, {}, {}, { skip: string }>, 
           }
         }
       }
-    });
+    }
+
+    if(cursor) {
+      queryArgs.cursor = { id: Number(cursor) };
+      queryArgs.skip = 1;
+    }
+    // Find posts from users the current user is not following
+    const posts  = await prisma.post.findMany(queryArgs) as unknown as PostsRes[];
     return res.status(200).json({ success: true, data: posts })
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});

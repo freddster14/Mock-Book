@@ -13,7 +13,6 @@ export default function FollowingPosts() {
   const [ posts, setPosts ] = useState<PostsRes[]>([]);
   const [ error, setError ] = useState<ApiError | null>(null);
   const [ loading, setLoading ] = useState(true);
-  const [skip, setSkip] = useState(5);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const allLoaded = useRef(false);
 
@@ -23,6 +22,7 @@ export default function FollowingPosts() {
       const res = await apiFetch(`/posts`);
       if(res.success) {
         setPosts(res.data);
+        
       } else if(res.error instanceof ApiError) {
         setError(res.error);
       } else {
@@ -36,12 +36,13 @@ export default function FollowingPosts() {
   const loadMore = async () => {
     // Prevent multiple triggers and loading if all posts are fetched
     if (isFetchingMore || allLoaded.current) return;
+    const cursor = posts[posts.length - 1].id;
+    console.log(cursor)
     setIsFetchingMore(true);
     try {
-      const res = await apiFetch(`/posts/?skip=${skip}`);
+      const res = await apiFetch(`/posts/?cursor=${cursor}`);
       if (res.data && res.data.length > 0) {
         setPosts((prev) => [...prev, ...res.data]);
-        setSkip((prev) => prev + 5);
         if (res.data.length < 5) {
           // No more posts available
           allLoaded.current = true;

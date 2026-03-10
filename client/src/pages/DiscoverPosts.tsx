@@ -12,7 +12,6 @@ export default function DiscoverPosts() {
   const [posts, setPosts] = useState<PostsRes[]>([]);
   const [error, setError] = useState<ApiError | null>(null);
   const [loading, setLoading] = useState(true);
-  const [skip, setSkip] = useState(5);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const allLoaded = useRef(false);
 
@@ -36,11 +35,11 @@ export default function DiscoverPosts() {
     // Prevent multiple triggers and loading if all posts are fetched
     if (isFetchingMore || allLoaded.current) return;
     setIsFetchingMore(true);
+    const cursor = posts[posts.length - 1].id
     try {
-      const res = await apiFetch(`/posts/discover/?skip=${skip}`);
+      const res = await apiFetch(`/posts/discover/?cursor=${cursor}`);
       if (res.data && res.data.length > 0) {
         setPosts((prev) => [...prev, ...res.data]);
-        setSkip((prev) => prev + 5);
         if (res.data.length < 5) {
           // No more posts available
           allLoaded.current = true;
@@ -54,6 +53,7 @@ export default function DiscoverPosts() {
     } finally {
       setIsFetchingMore(false);
     }
+
   };
 
   if (loading) {
