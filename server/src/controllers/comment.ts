@@ -2,7 +2,7 @@ import { ApiResult, Comment, CommentBody, PostComments } from "shared-types";
 import { handleValidation, validateComment } from "../middleware/validation";
 import { Request, Response } from "express";
 import { prisma } from "../../prisma/client";
-import { Post } from "../../generated/prisma/client";
+import { Post, Prisma } from "../../generated/prisma/client";
 
 export const comment = [
   ...validateComment,
@@ -39,8 +39,9 @@ export const comment = [
   }
 ]
 
-export const postComments = async(req: Request<{ postId: string }>, res: Response<ApiResult<PostComments[]>>) => {
+export const postComments = async(req: Request<{ postId: string }, {}, {}, { cursor: string}>, res: Response<ApiResult<PostComments[]>>) => {
   const { postId } = req.params;
+  const { cursor } = req.query
   try {
     // Check if the post exists
     const post = await prisma.post.count({
@@ -48,11 +49,10 @@ export const postComments = async(req: Request<{ postId: string }>, res: Respons
     }) 
     if (post === 0) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "Post not found" }});
     
-    // Find all the comments for the post
-    const postComments: PostComments[] = await prisma.comment.findMany({
+    const queryArgs: Prisma.CommentFindManyArgs = {
       where: { postId: parseInt(postId) },
       orderBy: {
-        createdAt: 'asc'
+        id: 'desc'
       },
       include: {
         author: {
@@ -62,7 +62,14 @@ export const postComments = async(req: Request<{ postId: string }>, res: Respons
           }
         },
       }
-    });
+    }
+
+    if (cursor) {
+      queryArgs.cursor = { id: Number(cursor) };
+      queryArgs.skip = 1;
+    }
+    // Find all the comments for the post
+    const postComments: PostComments[] = await prisma.comment.findMany(queryArgs) as unknown as PostComments[];
 
     return res.status(200).json({ success: true , data: postComments })
   } catch (error) {

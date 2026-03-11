@@ -1,10 +1,13 @@
-import React, { useState } from "react"
+import React, {  useRef, useState } from "react"
 import { apiFetch } from "../api/fetch"
-import {  PostComments } from "shared-types"
+import {  Comment, PostComments, PostsRes, User, UserRes } from "shared-types"
 import { ApiError } from "../types"
 import { useAuth } from "../context/AuthContext"
 import { NavLink } from "react-router"
 import { Button } from "./ui/button"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
+import TimeAgo from "timeago-react"
+import { Separator } from "./ui/separator"
 
 export default function PostComment({ commentCount, postId, authorId }: { commentCount: number, postId: number, authorId: number}) {
   const { user } = useAuth();
@@ -15,12 +18,16 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
   const [ content, setContent ] = useState("");
   const [ isSubmitting, setIsSubmitting ] = useState(false);
   const [ userComments, setUserComments ] = useState<{id: number, content: string}[] | []>([])
+  const [ isFetchingMore, setIsFetchMore ] = useState(false)
+  const allLoaded = useRef(false)
+  const virtuso = useRef<VirtuosoHandle>(null)
 
   const loadComments = () => {
     const fetchComments = async () => {
       const res = await apiFetch(`/comments/${postId}`);
       if (res.success) {
         setComments(res.data)
+        if (!res.data || res.data.length < 5) allLoaded.current = true;
       } else if(res.error instanceof ApiError) {
         setError(res.error.msg);
       }
@@ -39,7 +46,6 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
       {
         id: prev.length,
         content,
-
       },
     ])
     setContent("")
@@ -49,7 +55,12 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
     }
     try {
       const res = await apiFetch(`/comments/${postId}`, options);
-      setComments(prev => [...prev, res.data])
+      virtuso.current?.scrollToIndex({
+        index: 0,
+        align: 'start',
+        behavior: 'smooth'
+      })
+      setComments(prev => [res.data, ...prev])
       setCount( prev => prev + 1)
     } catch (error) {
     } finally {
@@ -57,8 +68,28 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
       setUserComments(temp)
     }
   }
-  // make comment independent component to keep track of deletion and status?
 
+
+  const loadMore = async () => {
+    if (isFetchingMore || allLoaded.current) return;
+    setIsFetchMore(true);
+    const cursor = comments[comments.length - 1].id
+    try {
+      const res = await apiFetch(`/comments/${postId}/?cursor=${cursor}`)
+      if (res.data && res.data.length > 0) {
+        setComments(prev => [...prev, ...res.data])
+      } else {
+        allLoaded.current = true;
+      }
+    } catch (error) {
+      setError("Something went wrong, try again");
+      allLoaded.current = true
+    } finally {
+      setIsFetchMore(false)
+    }
+  }
+
+  // make comment independent component to keep track of deletion and status?
   const handleDelete = async (id: number) => {
     try {
       await apiFetch(`/comments/${id}`, { method: "DELETE" })
@@ -69,6 +100,8 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
       console.error(error)
     }
   }
+ 
+
 
   return (
     <>
@@ -95,23 +128,34 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
           </div>
           <div className="flex flex-col-reverse">
             { !error && comments.length > 0
-            ? comments?.map(c => (
-                <div key={c.id} >
-                  <NavLink to={`/dashboard/profile/${c.author.username}`}>
-                    {c.author.avatarUrl ? <img src={c.author.avatarUrl} /> : <div>{c.author.username[0]}</div>}
-                  </NavLink>
-                  { (authorId === user?.userId || c.authorId === user?.userId)  && <Button onClick={() => handleDelete(c.id)}>Delete</Button> }
-                  <div>
-                    <div>
-                      <NavLink to={`/dashboard/profile/${c.author.username}`}>
-                        <p>Author: {c.author.username}</p>
-                      </NavLink>                    
-                      <p>{new Date(c.createdAt).toLocaleString()}</p>
-                    </div>
-                    <p>{c.content}</p>
-                  </div>
+            ? 
+              <Virtuoso
+              style={{ height: "50vh", width: "100%" }}
+              data={comments}
+              endReached={loadMore}
+              atBottomThreshold={300}
+              ref={virtuso}
+              itemContent={(_i, c) => (
+                <div>
+                  <CommentUI c={c} handleDelete={handleDelete} authorId={authorId} />
+                  <Separator className="mt-4 mb-4" />
                 </div>
-              ))
+              )}
+              components={{
+                Footer: () => (
+                  <div
+                    style={{
+                      padding: "1rem",
+                      paddingBottom: "2rem",
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    { isFetchingMore && !allLoaded.current ? "Loading..." : "No more posts."}
+                  </div>
+                )
+              }}
+              />
               : !error 
               ? <p>No comments yet</p> 
               : <p>{error}</p>
@@ -127,5 +171,36 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
       }
       
     </>
+  )
+}
+
+export function CommentUI({c, handleDelete, authorId}:
+  {
+    c: Comment & { author: UserRes},
+    handleDelete: Function,
+    authorId: number
+  }
+) {
+  const { user } = useAuth();
+
+  
+
+  return (
+    <>
+      <NavLink to={`/dashboard/profile/${c.author.username}`}>
+      {c.author.avatarUrl ? <img src={c.author.avatarUrl} /> : <div>{c.author.username[0]}</div>}
+      </NavLink>
+      {(authorId === user?.userId || c.authorId === user?.userId)  && <Button onClick={() => handleDelete(c.id)}>Delete</Button> }
+      <div>
+        <div>
+          <NavLink to={`/dashboard/profile/${c.author.username}`}>
+            <p>Author: {c.author.username}</p>
+          </NavLink>                    
+          <TimeAgo  datetime={new Date(c.createdAt).toLocaleString()}/>
+        </div>
+        <p>{c.content}</p>
+      </div>
+    </>
+    
   )
 }

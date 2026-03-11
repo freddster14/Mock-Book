@@ -8,7 +8,6 @@ export default function Dashboard() {
   return (
     <div className="w-full max-w-sm">
       <ProtectedRoute>
-        
         <Outlet />
         <Nav />
       </ProtectedRoute>
