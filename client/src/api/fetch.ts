@@ -1,6 +1,5 @@
 import type { UserForm, UserSignInForm } from "shared-types";
 import { ApiError } from "../types";
-import { ProfileData } from "@/types/avatar";
 
 
 const API_URL = import.meta.env.MODE === 'production' ? '/api' : "http://localhost:3000";
