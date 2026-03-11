@@ -1,6 +1,10 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { prisma } from "../../prisma/client";
-import { ApiResult, PostsRes, ProfileRes, User, UserRes } from "shared-types";
+import { ApiResult, ProfileRes, User, UserRes } from "shared-types";
+import multer from "multer"
+
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
 
 export const users = async (req: Request<{}, {}, {}, { limit: string | undefined, search: string | undefined }>, res: Response<ApiResult<UserRes[]>>) => {
   const { limit, search } = req.query;
@@ -32,7 +36,7 @@ export const users = async (req: Request<{}, {}, {}, { limit: string | undefined
   }
 }
 
-export const profile = async (req: Request<{ username: string }>, res: Response<ApiResult<ProfileRes>>) => {
+export const profileAndPost = async (req: Request<{ username: string }>, res: Response<ApiResult<ProfileRes>>) => {
   const { username } = req.params;
   try {
     const user: ProfileRes | null = await prisma.user.findFirst({
@@ -70,21 +74,45 @@ export const profile = async (req: Request<{ username: string }>, res: Response<
   }
 }
 
-export const edit = async (req: Request, res: Response) => {
-  const { username, avatarUrl, bio } = req.body;
+export const profile = async (req: Request, res: Response<ApiResult<Omit<User, "hashedPass" | "createdAt">>>) => {
   try {
-    await prisma.user.update({
+    const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
-      data: {
-        username,
-        avatarUrl,
-        bio
+      omit: {
+        hashedPass: true,
+        createdAt: true,
       }
     })
+    if (!user) return res.status(404).json({ success: false, error: { type: "not_found", msg: "User not found"}})
+    return res.status(200).json({ success: true, data: user})
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
   }
 }
+export const edit = [ 
+    upload.single('avatar'),
+  async (req: Request<{}, {}, { username: string, bio: string }>, res: Response) => {
+    const { username, bio } = req.body;
+    try {
+      //task for tomorrow
+      // hookup cloudbase to backend
+      // upload req.file
+      //grab url
+      //maybe make file size smaller?
+      //upload url to database
+      await prisma.user.update({
+        where: { id: req.user.userId },
+        data: {
+          username,
+          bio
+        }
+      })
+      return res.status(200).json({ success: true, data: { msg: "Updated" }})
+    } catch (error) {
+      return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
+    }
+  }
+]
 
 export const remove = async (req: Request, res: Response<ApiResult<{ msg: string }>>) => {
   try {

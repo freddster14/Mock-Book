@@ -11,6 +11,7 @@ import { apiFetch } from "../api/fetch";
 import Error from "@/pages/Error";
 import UserConnection from "@/pages/UserConnections";
 import Connections from "@/components/Connections";
+import EditProfile from "@/pages/EditProfile";
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,11 @@ export const router = createBrowserRouter([
         Component: Profile,
         loader: async ({ params }) => await apiFetch(`/users/${params.username}`),
         
+      },
+      {
+        path: "profile/edit/:username",
+        Component: EditProfile,
+        loader: async () => await apiFetch('/users/info')
       },
       {
         path: "profile/:user/posts/:userId",

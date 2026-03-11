@@ -1,9 +1,11 @@
-import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from "react-router";
+import { Link, NavLink, useLoaderData, useNavigate, useParams, useSearchParams } from "react-router";
 import { ProfileRes } from "shared-types";
 import Follow from "../components/Follow";
 import { useAuth } from "@/context/AuthContext";
 import { Virtuoso } from "react-virtuoso";
 import Post from "@/components/Post";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -14,12 +16,14 @@ export default function Profile() {
   return (
     <>
       <div>
-        {currUser.avatarUrl ? (
-          <img src={currUser.avatarUrl} alt={currUser.username} />
-        ) : (
-          <div>{currUser.username[0]}</div>
-        )}
+          <Avatar size="lg" >
+            {currUser.avatarUrl
+              ? <AvatarImage src={currUser.avatarUrl} />
+              : <AvatarFallback>{currUser.username[0]}</AvatarFallback>
+            }
+          </Avatar>
         <p>{currUser.username}</p>
+        { user?.userId === currUser.id && <Button variant="link"><NavLink to={`/dashboard/profile/edit/${user.username}`}>Edit</NavLink></Button>}
         <div>
           <p>Posts {currUser.posts.length}</p>
           <Link to={`/dashboard/connections/${currUser.username}/followers`}>Followers {currUser._count.followers}</Link>
