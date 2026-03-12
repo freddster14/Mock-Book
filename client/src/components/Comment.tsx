@@ -151,7 +151,7 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
                       justifyContent: "center",
                     }}
                   >
-                    { isFetchingMore && !allLoaded.current ? "Loading..." : "No more posts."}
+                    { isFetchingMore && !allLoaded.current ? "Loading..." : "No more comments."}
                   </div>
                 )
               }}
