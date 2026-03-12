@@ -1,6 +1,6 @@
 import React, {  useRef, useState } from "react"
 import { apiFetch } from "../api/fetch"
-import {  Comment, PostComments, PostsRes, User, UserRes } from "shared-types"
+import {  Comment, PostComments, UserRes } from "shared-types"
 import { ApiError } from "../types"
 import { useAuth } from "../context/AuthContext"
 import { NavLink } from "react-router"
