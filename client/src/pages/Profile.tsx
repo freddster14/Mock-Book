@@ -14,22 +14,32 @@ export default function Profile() {
   const navigate = useNavigate()
 
   return (
-    <>
-      <div>
-          <Avatar size="lg" >
-            {currUser.avatarUrl
-              ? <AvatarImage src={currUser.avatarUrl} />
-              : <AvatarFallback>{currUser.username[0]}</AvatarFallback>
-            }
-          </Avatar>
-        <p>{currUser.username}</p>
-        { user?.userId === currUser.id && <Button variant="link"><NavLink to={`/dashboard/profile/edit/${user.username}`}>Edit</NavLink></Button>}
-        <div>
-          <p>Posts {currUser.posts.length}</p>
-          <Link to={`/dashboard/connections/${currUser.username}/followers`}>Followers {currUser._count.followers}</Link>
-          <Link to={`/dashboard/connections/${currUser.username}/following`}>Following {currUser._count.following}</Link>
+    <div className="mt-6">
+      <div className="flex gap-4">
+        <Avatar className="w-[20vw] h-[20vw] max-w-38 max-h-38 aspect-square">
+          {currUser.avatarUrl
+            ? (
+                <AvatarImage
+                  src={currUser.avatarUrl}
+                />
+              )
+            : (
+                <AvatarFallback className="w-full h-full aspect-square flex items-center justify-center text-2xl md:text-4xl">
+                  {currUser.username[0]}
+                </AvatarFallback>
+              )
+          }
+        </Avatar>
+        <div className="flex flex-col gap-5">
+          <p className="text-xl pl-1 pt-1">{currUser.username}</p>
+          <div className="flex gap-3">
+            <p>Posts {currUser.posts.length}</p>
+            <Link to={`/dashboard/connections/${currUser.username}/followers`}>Followers {currUser._count.followers}</Link>
+            <Link to={`/dashboard/connections/${currUser.username}/following`}>Following {currUser._count.following}</Link>
+          </div>
+          { user?.userId === currUser.id && <NavLink to={`/dashboard/profile/edit/${user.username}`}><Button className="w-full">Edit</Button></NavLink>}
+          {user?.userId !== currUser.id && <Follow recipientId={currUser.id} />}
         </div>
-        {user?.userId !== currUser.id && <Follow recipientId={currUser.id} />}
       </div>
       <p>{currUser.bio}</p>
       <div>
@@ -43,7 +53,7 @@ export default function Profile() {
           <p>No Posts</p>
         )}
       </div>
-    </>
+    </div>
   );
 }
 

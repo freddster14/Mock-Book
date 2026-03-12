@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardAction, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/AuthContext";
+import { ApiError } from "@/types";
 import { AccountCreationError } from "@/types/formErrors";
 import React, { useState } from "react";
 import { Link, useLoaderData, useNavigate } from "react-router";
 
 export default function EditProfile() {
+  const { setUser } = useAuth()
   const res = useLoaderData()
   const user = res.data;
   const [ isSubmitting, setIsSubmitting ] = useState(false);
@@ -28,14 +31,26 @@ export default function EditProfile() {
       formData.append("username", username);
       formData.append("bio", bio)
       if (selectedFile) formData.append("avatar", selectedFile)
+        console.log(...formData.entries())
       const options = {
         method: "PATCH",
         body: formData
       }
-      await avatarFetch(`/users`, options)
-      navigate(`/dashboard/profile/${user.username}`)
+      const res = await avatarFetch(`/users`, options)
+      setUser(res.data)
+      navigate(`/dashboard/profile/${username}`)
     } catch (error) {
-      console.error(error)
+      if (error instanceof ApiError) {
+        if (error.type === 'validation') {
+          const organizedErrors = {
+            username: error.data.find(e => e.path === "username")?.msg,
+            bio: error.data.find(e => e.path === "bio")?.msg
+          }
+          setErrors(organizedErrors)
+        } else {
+          setErrors("An unexpected error occurred. Please try again.")
+        }
+      }
     } finally {
       setIsSubmitting(false)
     }

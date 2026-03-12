@@ -33,6 +33,7 @@ export default function AccountSetupForm({ formData, setFormData, setStep }: {
     }
 
     try {
+   
       await userFormFetch("/set-up", formData);
       setStep(2)
     } catch (error) {

@@ -1,7 +1,12 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { prisma } from "../../prisma/client";
 import { ApiResult, ProfileRes, User, UserRes } from "shared-types";
+import jwt from "jsonwebtoken"
 import multer from "multer"
+import { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
+import cloudinary from "../utils/cloudinary";
+import { Prisma } from "../../generated/prisma/client";
+import { handleValidation, validateProfile } from "../middleware/validation";
 
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
@@ -69,7 +74,6 @@ export const profileAndPost = async (req: Request<{ username: string }>, res: Re
 
     return res.status(200).json({ success: true, data: user })
   } catch (error) {
-    console.log(error)
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
   }
 }
@@ -90,25 +94,62 @@ export const profile = async (req: Request, res: Response<ApiResult<Omit<User, "
   }
 }
 export const edit = [ 
-    upload.single('avatar'),
+  upload.single('avatar'),
+  ...validateProfile,
+  handleValidation,
   async (req: Request<{}, {}, { username: string, bio: string }>, res: Response) => {
     const { username, bio } = req.body;
     try {
-      //task for tomorrow
-      // hookup cloudbase to backend
-      // upload req.file
-      //grab url
-      //maybe make file size smaller?
-      //upload url to database
-      await prisma.user.update({
+      let result;
+
+      const existingUser: User | null = await prisma.user.findUnique({ where: { username }});     
+      if (existingUser) return res.status(400).json({ success: false, error: { type: "validation", data: [{ msg: "Username is taken", path: "username", value: username }]}})
+
+      if (req.file) {
+        result = await new Promise<UploadApiResponse>((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: 'mock_book' },
+            ( error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
+              if(result) resolve(result);
+              else reject(error);
+            }
+          );
+          uploadStream.end(req.file!.buffer)
+        })
+      } 
+
+      const queryOptions: Prisma.UserUpdateArgs = {
         where: { id: req.user.userId },
         data: {
           username,
-          bio
+          bio,
+        },
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
         }
-      })
-      return res.status(200).json({ success: true, data: { msg: "Updated" }})
+      };
+
+      if (result) queryOptions.data.avatarUrl = result?.secure_url;
+      const user  = await prisma.user.update(queryOptions)
+
+      const token = jwt.sign(
+        { userId: user.id, username: user.username, avatarUrl: user.avatarUrl }, 
+        process.env.SECRET!,
+        { expiresIn: "15m" }
+      )
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000 // 15 minutes
+      });
+
+      return res.status(200).json({ success: true, data: { userId: user.id, username: user.username, avatarUrl: user.avatarUrl } })
     } catch (error) {
+      console.error(error)
       return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
     }
   }

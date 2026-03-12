@@ -28,27 +28,40 @@ export const apiFetch = async (endpoint: string, options?: RequestInit) => {
   }
 }
 
-export const userFormFetch = async (endpoint: string, formData: UserForm | UserSignInForm) => {
+export const userFormFetch = async (endpoint: string, formData: FormData | UserForm | UserSignInForm) => {
   try {
-    const res = await fetch(`${API_URL}${endpoint}`, {
-      credentials: "include",
-      method: "POST",
-      body: JSON.stringify(formData),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
+    let fetchOptions: RequestInit;
+
+    if (formData instanceof FormData) {
+      fetchOptions = {
+        credentials: "include",
+        method: "POST",
+        body: formData
+        // Let browser set content-type with boundary for FormData.
+      };
+    } else {
+      fetchOptions = {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      };
+    }
+
+    const res = await fetch(`${API_URL}${endpoint}`, fetchOptions);
     const data = await res.json();
 
     if (!res.ok) {
-      //console.log("API Error Response:", data);
+      console.log("API Error Response:", data);
       throw new ApiError(data.error.msg, data.error.type, data.error?.data)
     }
 
-    return data
+    return data;
   } catch (error) {
-    //console.error("API Fetch Error:", error)
-    throw error
+    console.error("API Fetch Error:", error);
+    throw error;
   }
 }
 

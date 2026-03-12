@@ -5,8 +5,15 @@ import { prisma } from "../../prisma/client";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import { handleValidation, validateProfile, validateSignIn, validateSignUp } from "../middleware/validation";
+import multer from "multer"
+import { UploadApiResponse } from "cloudinary";
+import cloudinary from "../utils/cloudinary";
+
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
 
 export const create = [
+  upload.single('avatar'),
   ...validateProfile,
   handleValidation,
   async (req: Request<{}, {}, UserBody>, res: Response<ApiResult<{ msg: string }>>) => {
@@ -16,7 +23,20 @@ export const create = [
       // Check if the username is already taken
       const existingUser: User | null = await prisma.user.findUnique({ where: { username }});     
       if (existingUser) return res.status(400).json({ success: false, error: { type: "validation", data: [{ msg: "Username is taken", path: "username", value: username }]}})
-
+      
+      let result;
+      if(req.file) {
+        result = await new Promise<UploadApiResponse>((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: 'mock_book'},
+            ( error, result) => {
+              if(result) resolve(result)
+              else reject(error)
+            }
+          );
+          uploadStream.end(req.file!.buffer)
+        })
+      }
       // Hash the password
       const hashedPass = await bcrypt.hash(password, 10)
 
@@ -27,6 +47,7 @@ export const create = [
           email,
           bio,
           hashedPass,
+          avatarUrl: result?.secure_url || null
         }
       })
 
