@@ -56,6 +56,7 @@ export default function Post({ post }: { post: PostsRes }) {
       <Separator />
       <div className="pt-2 pb-2">
         <p>{post.content}</p>
+        {post.imgUrl && <img src={post.imgUrl} alt={post.content} />}
       </div>
       <Separator />
       <div className="flex gap-3">
@@ -63,7 +64,6 @@ export default function Post({ post }: { post: PostsRes }) {
         <PostComment commentCount={post._count.comments} postId={post.id} authorId={post.authorId}/>
       </div>
    
-      {post.imgUrl && <img src={post.imgUrl} alt={post.content} />}
     </div>
   )
 }

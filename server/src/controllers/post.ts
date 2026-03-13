@@ -1,8 +1,14 @@
 import { ApiResult, Post, PostBody, PostsRes } from "shared-types";
 import { prisma } from "../../prisma/client";
 import { Request, Response } from "express";
-import { handleValidation, validateComment, validatePost } from "../middleware/validation";
+import { handleValidation, validatePost } from "../middleware/validation";
 import { Prisma } from "../../generated/prisma/client";
+import multer from "multer";
+import cloudinary from "../utils/cloudinary";
+import { UploadApiResponse } from "cloudinary";
+
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
 
 export const followingPosts = async (req: Request<{}, {}, {}, { cursor: string }>, res: Response<ApiResult<PostsRes[]>>) => {
   const { cursor } = req.query;
@@ -90,21 +96,38 @@ export const discoverPosts = async (req: Request<{}, {}, {}, { cursor: string }>
   }
   
 export const createPost = [
+  upload.single("image"),
   ...validatePost,
   handleValidation,
   async (req: Request<{}, {}, PostBody>, res: Response<ApiResult<Post>>) => {
-    const { content, imgUrl } = req.body;
+    const { content } = req.body;
     try {
-      // Create the post
-      const post: Post = await prisma.post.create({
+      let result;
+      if (req.file) {
+        result = await new Promise<UploadApiResponse>((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "mock_book" },
+            (error, result) => {
+              if(result) resolve(result)
+              else reject(error)
+            }
+          )
+          uploadStream.end(req.file!.buffer)
+        })
+      }
+      const queryArgs: Prisma.PostCreateArgs = {
         data: {
           content,
-          imgUrl: imgUrl || null,
           authorId: req.user.userId
         },
-      });
+      };
+
+      if (result) queryArgs.data.imgUrl = result?.secure_url;
+      // Create the post
+      const post: Post = await prisma.post.create(queryArgs);
       return res.status(201).json({ success: true, data: post });
     } catch (error) {
+      console.error(error)
       return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
     }
   }

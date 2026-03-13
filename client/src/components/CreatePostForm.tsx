@@ -1,15 +1,22 @@
-import { ApiError } from "../types";
 import React, { useState } from "react";
-import { ExpressError } from "shared-types";
-import { apiFetch } from "../api/fetch";
+import { avatarFetch } from "../api/fetch";
 import { useNavigate } from "react-router";
+import { PostCreationError } from "@/types/formErrors";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { ApiError } from "@/types";
+import { useAuth } from "@/context/AuthContext";
+import { Textarea } from "./ui/textarea";
+import { Field, FieldError, FieldGroup, FieldLabel } from "./ui/field";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 export default function CreatePostForm() {
-  const [ errors, setErrors ] = useState<ExpressError[] | null>(null);
+  const { user } = useAuth()
+  const [ errors, setErrors ] = useState<PostCreationError | null | string>(null);
   const [ isSubmitting, setIsSubmitting ] = useState(false);
   const [ content, setContent ] = useState("");
-  const [ imgUrl, setImgUrl ] = useState<File | null>(null);
-  const [ imgPreview, setImgPreview ] = useState<string | null>(null);
+  const [ selectedFile, setSelectedFile ] = useState<File | null>(null);
+  const [ preview, setPreview ] = useState<string | null>(null);
   const navigate = useNavigate();
   
   const handleSubmit = async (e: React.SyntheticEvent) => {
@@ -17,40 +24,77 @@ export default function CreatePostForm() {
     setErrors(null);
     if(isSubmitting) return;
     setIsSubmitting(true);
+   
     try {
+      const formData = new FormData()
+      formData.append("content", content)
+      if (selectedFile) formData.append("image", selectedFile)
       const options = {
         method: "POST",
-        body: JSON.stringify({ content, imgUrl: imgUrl ? imgUrl : undefined }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+        body: formData
       }
-      await apiFetch("/posts", options);
-      navigate("/dashboard");
+      await avatarFetch(`/posts`, options)
+      navigate(`/dashboard/profile/${user?.username}`);
     } catch (error) {
       if (error instanceof ApiError) {
-        setErrors(error.data);
+        if (error.type === 'validation') {
+          const organizedErrors = {
+            content: error.data.find(e => e.path === "content")?.msg,
+            image: error.data.find(e => e.path === "image")?.msg
+          }
+          setErrors(organizedErrors)
+        } else {
+          setErrors("An unexpected error occurred. Please try again.")
+        }
       }
     } finally {
       setIsSubmitting(false);
     }
   }
+
+  const previewImg = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file){
+      setErrors("Could not upload image try again")
+      return;
+    }
+    setSelectedFile(file)
+    setPreview(URL.createObjectURL(file))
+  }
+
+  const removeImg = () => {
+    setPreview(null)
+    setSelectedFile(null)
+  }
   return (
-    <>
-      <div>
-        <h1>Create Post</h1>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <textarea value={content} onChange={(e) => setContent(e.target.value)}></textarea>
-        <p>{errors?.find(err => err.path === "content")?.msg}</p>
-        <input type="file" onChange={(e) => {
-          setImgUrl(e.target.files?.[0] || null);
-          setImgPreview(e.target.files?.[0] ? URL.createObjectURL(e.target.files[0]) : null);
-        }} />
-        {imgPreview && <img src={imgPreview} alt="Preview" />}
-        <p>{errors?.find(err => err.path === "imgUrl")?.msg}</p>
-        <button type="submit" disabled={isSubmitting}>{isSubmitting ? "Creating..." : "Create"}</button>
-      </form>
-    </>
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle>Create Post</CardTitle>
+        <CardDescription>Be creative. Make it unique</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} encType="multipart/form-data" id="create-post">
+          <FieldGroup>
+            <Field>
+              <div>{preview
+              ? <img src={preview} className="m-h-50" />
+              : <p>Image place holder</p>
+              }</div>
+              <Button type="button" onClick={removeImg}>X</Button>
+              <Input aria-invalid={typeof errors === "object" && errors?.image !== undefined} onChange={previewImg} id="image" type="file" name="image" accept="image/*"/>
+              <FieldError>{typeof errors === "object" && errors?.image}</FieldError>
+            </Field>
+            <Field>
+              <FieldLabel>Description</FieldLabel>
+              <Textarea aria-invalid={typeof errors === "object" && errors?.content !== undefined} value={content} onChange={(e) => setContent(e.target.value)}/>
+              <FieldError>{typeof errors === "object" && errors?.content}</FieldError>
+            </Field>
+          </FieldGroup>
+        </form>
+      </CardContent>
+      <CardFooter>
+        <Button type="submit" form="create-post" disabled={isSubmitting}>{isSubmitting ? "Creating..." : "Create"}</Button>
+      </CardFooter>
+    </Card>
   )
 }

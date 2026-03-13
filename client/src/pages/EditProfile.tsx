@@ -31,7 +31,6 @@ export default function EditProfile() {
       formData.append("username", username);
       formData.append("bio", bio)
       if (selectedFile) formData.append("avatar", selectedFile)
-        console.log(...formData.entries())
       const options = {
         method: "PATCH",
         body: formData

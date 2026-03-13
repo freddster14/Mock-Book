@@ -18,11 +18,7 @@ export default function Profile() {
       <div className="flex gap-4">
         <Avatar className="w-[20vw] h-[20vw] max-w-38 max-h-38 aspect-square">
           {currUser.avatarUrl
-            ? (
-                <AvatarImage
-                  src={currUser.avatarUrl}
-                />
-              )
+            ? <AvatarImage src={currUser.avatarUrl} />
             : (
                 <AvatarFallback className="w-full h-full aspect-square flex items-center justify-center text-2xl md:text-4xl">
                   {currUser.username[0]}
@@ -63,10 +59,10 @@ export function UserPosts() {
   const res = useLoaderData()
   const initialIndex = parseInt(searchParams.get("index") || "0");
   const posts = res.data;
-
+  console.log(user)
   return (
-    <>
-      <Link to={`/dashboard/profile/${user}`}>Back to Profile</Link>
+    <div className="mt-6">
+      <Link to={`/dashboard/profile/${user}`}>{`<- ${user}`}</Link>
      <Virtuoso
       style={{ height: "60dvh", width: "100%" }}
       totalCount={posts.length}
@@ -77,7 +73,7 @@ export function UserPosts() {
         </div>
       )}
     />
-    </>
+    </div>
    
   );
 }
