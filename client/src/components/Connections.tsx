@@ -3,6 +3,7 @@ import { NavLink, useLoaderData, useLocation, useParams } from "react-router";
 import { Follower, Following } from "shared-types";
 import Follow from "./Follow";
 import Remove from "./RemoveFollowers";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export default function Connections() {
   const { user } = useAuth()
@@ -14,18 +15,23 @@ export default function Connections() {
 
 
   return (
-    <div>
+    <div className="flex flex-col gap-5">
       {users.length > 0
       ? users.map(u => (
-        <div key={u.userId}>
-          <NavLink to={`/dashboard/profile/${u.username}`}>
-            {u.avatarUrl ? <img src={u.avatarUrl} /> : <div>{u.username[0]}</div>}
+        <div key={u.userId} className="flex justify-between items-center">
+          <NavLink to={`/dashboard/profile/${u.username}`} className="flex items-center gap-3">
+             <Avatar size="lg">
+              {u.avatarUrl
+                ? <AvatarImage  src={u.avatarUrl} />
+                : <AvatarFallback >{u.username[0]}</AvatarFallback>
+              }
+            </Avatar>
+            <p>{u.username}</p>
           </NavLink>
-          <NavLink to={`/dashboard/profile/${u.username}`}>
-            <p>Author: {u.username}</p>
-          </NavLink>
-          {user?.userId !== u.userId && <Follow recipientId={u.userId}/>}
-          {username === user?.username && isFollowersPage && <Remove recipientId={u.userId}/>  }
+          <div>
+            {user?.userId !== u.userId && <Follow recipientId={u.userId}/>}
+            {username === user?.username && isFollowersPage && <Remove recipientId={u.userId}/>  }
+          </div>
         </div>
       ))
       : <p>No Users</p>

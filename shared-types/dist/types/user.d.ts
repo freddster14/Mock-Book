@@ -25,7 +25,7 @@ export interface UserToken {
 }
 export type UserRes = Pick<User, "id" | "username" | "avatarUrl">;
 export type ProfileRes = UserRes & {
-    posts: Pick<Post, "id" | "content" | "imgUrl">[];
+    posts: Pick<Post, "id" | "content">[];
     bio: string;
     _count: {
         followers: number;

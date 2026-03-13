@@ -35,7 +35,7 @@ export default function Post({ post }: { post: PostsRes }) {
 
   return (
     <div>
-      <div className="flex gap-3 p-2 h-fit">
+      <div className="flex gap-3 p-2 h-fit items-center">
         <NavLink to={`/dashboard/profile/${post.author.username}`}>
           <Avatar size="lg">
           {post.author.avatarUrl
@@ -44,8 +44,8 @@ export default function Post({ post }: { post: PostsRes }) {
           }
           </Avatar>
         </NavLink>
-        <NavLink className="text-sm" to={`/dashboard/profile/${post.author.username}`}>
-          <p>{post.author.username}</p>
+        <NavLink to={`/dashboard/profile/${post.author.username}`}>
+          <p className="text-lg">{post.author.username}</p>
           <TimeAgo  datetime={new Date(post.createdAt).toLocaleString()}/>
         </NavLink>
         <div className="ml-auto">

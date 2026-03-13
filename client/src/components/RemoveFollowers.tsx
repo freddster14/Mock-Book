@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Button } from "./ui/button";
 import { apiFetch } from "@/api/fetch";
 
 export default function RemoveFollowers({ recipientId }: { recipientId: number }) {
@@ -18,13 +17,13 @@ export default function RemoveFollowers({ recipientId }: { recipientId: number }
     }
   }
   return (
-    <Button onClick={handleRemoval}>
+    <button onClick={handleRemoval} className="p-2 ml-2">
       {isRemoving && !unfollowed 
         ? "Removing..."
         : unfollowed
         ? "Removed"
-        : 'Remove'
+        : 'X'
       }
-    </Button>
+    </button>
   )
 }

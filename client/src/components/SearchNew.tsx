@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { UserRes } from "shared-types";
 import { apiFetch } from "../api/fetch";
 import { NavLink } from "react-router";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Separator } from "./ui/separator";
 
 export default function SearchNew() {
   const [ search, setSearch ] = useState("");
@@ -45,18 +47,24 @@ export default function SearchNew() {
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} />
           <button type="submit">Search</button>
         </label>
-
       </form>
-      { 
-      loading ? <p>Loading...</p>
+      { loading ? <p>Loading...</p>
       : !loading && results.length > 0 
-      ? results.map(r => (
-          <NavLink key={r.id} to={`/dashboard/profile/${r.username}`}>
-            {r.avatarUrl ? <img src={r.avatarUrl} /> : <div>{r.username[0]}</div>}
-            <p>{r.username}</p>
+      ? results.map(u => (
+        <div key={u.id} >
+          <NavLink to={`/dashboard/profile/${u.username}`} className="flex items-center gap-5 mb-4 mt-4 ">
+            <Avatar size="lg">
+              {u.avatarUrl
+                ? <AvatarImage  src={u.avatarUrl} />
+                : <AvatarFallback >{u.username[0]}</AvatarFallback>
+              }
+            </Avatar>
+            <p className="text-m">{u.username}</p>
           </NavLink>
+          <Separator />
+        </div>
+          
         ))
-    
       : <p>No results</p>
       }
     </>

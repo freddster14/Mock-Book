@@ -59,7 +59,7 @@ export const profileAndPost = async (req: Request<{ username: string }>, res: Re
             imgUrl: true,
           },
           orderBy: {
-            createdAt: 'desc'
+            id: 'desc'
           },
         },
         _count: {
