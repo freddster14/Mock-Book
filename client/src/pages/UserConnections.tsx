@@ -7,11 +7,10 @@ export default function UserConnection() {
     <div className="flex flex-col mt-6">
       <NavLink to={`/dashboard/profile/${username}`}>{"<- " + username}</NavLink>
       <div className="flex justify-center gap-5">
-      <NavLink to={`/dashboard/connections/${username}/followers`}><Button variant="link">Followers</Button></NavLink>
-      <NavLink to={`/dashboard/connections/${username}/following`}><Button variant="link">Following</Button></NavLink>
-      {/* <NavLink to={`/connections/${username}/mutuals`}>Mutuals</NavLink> */}
+        <NavLink to={`/dashboard/connections/${username}/followers`}><Button variant="link">Followers</Button></NavLink>
+        <NavLink to={`/dashboard/connections/${username}/following`}><Button variant="link">Following</Button></NavLink>
+        {/* <NavLink to={`/connections/${username}/mutuals`}>Mutuals</NavLink> */}
       </div>
-     
       <Outlet />
     </div>
   )

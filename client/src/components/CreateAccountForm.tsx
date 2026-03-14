@@ -87,9 +87,7 @@ export default function CreateAccountForm({ formData, setFormData, setStep }:
         <Field>
               <FieldLabel htmlFor="avatar">Avatar</FieldLabel>
               <Avatar className=" !w-30 !h-30">
-                
                    <AvatarImage src={preview}/>
-                
                 <AvatarFallback>{formData.username[0]}</AvatarFallback>
               </Avatar>
               <Input onChange={previewImg} id="avatar" type="file" name="avatar" accept="image/*"/>
@@ -107,6 +105,7 @@ export default function CreateAccountForm({ formData, setFormData, setStep }:
               <FieldError>{typeof errors === "object" && errors.bio}</FieldError>
             </Field>
           </FieldGroup>
+          {typeof errors === "string" && <p>{errors}</p>}
         </form>
       </CardContent>
       <CardFooter>

@@ -67,34 +67,38 @@ export default function CreatePostForm() {
     setSelectedFile(null)
   }
   return (
-    <Card className="mt-6">
-      <CardHeader>
-        <CardTitle>Create Post</CardTitle>
-        <CardDescription>Be creative. Make it unique</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} encType="multipart/form-data" id="create-post">
-          <FieldGroup>
-            <Field>
-              <div>{preview
-              ? <img src={preview} className="m-h-50" />
-              : <p>Image place holder</p>
-              }</div>
-              <Button type="button" onClick={removeImg}>X</Button>
-              <Input aria-invalid={typeof errors === "object" && errors?.image !== undefined} onChange={previewImg} id="image" type="file" name="image" accept="image/*"/>
-              <FieldError>{typeof errors === "object" && errors?.image}</FieldError>
-            </Field>
-            <Field>
-              <FieldLabel>Description</FieldLabel>
-              <Textarea aria-invalid={typeof errors === "object" && errors?.content !== undefined} value={content} onChange={(e) => setContent(e.target.value)}/>
-              <FieldError>{typeof errors === "object" && errors?.content}</FieldError>
-            </Field>
-          </FieldGroup>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Button type="submit" form="create-post" disabled={isSubmitting}>{isSubmitting ? "Creating..." : "Create"}</Button>
-      </CardFooter>
-    </Card>
+    <>
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Create Post</CardTitle>
+          <CardDescription>Be creative. Make it unique</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} encType="multipart/form-data" id="create-post">
+            <FieldGroup>
+              <Field>
+                <div>{preview
+                ? <img src={preview} className="m-h-50" />
+                : <p>Image place holder</p>
+                }</div>
+                <Button type="button" onClick={removeImg}>X</Button>
+                <Input aria-invalid={typeof errors === "object" && errors?.image !== undefined} onChange={previewImg} id="image" type="file" name="image" accept="image/*"/>
+                <FieldError>{typeof errors === "object" && errors?.image}</FieldError>
+              </Field>
+              <Field>
+                <FieldLabel>Description</FieldLabel>
+                <Textarea aria-invalid={typeof errors === "object" && errors?.content !== undefined} value={content} onChange={(e) => setContent(e.target.value)}/>
+                <FieldError>{typeof errors === "object" && errors?.content}</FieldError>
+              </Field>
+            </FieldGroup>
+            {typeof errors === "string" && <p>{errors}</p>}
+          </form>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" form="create-post" disabled={isSubmitting}>{isSubmitting ? "Creating..." : "Create"}</Button>
+        </CardFooter>
+      </Card>
+    </>
+  
   )
 }

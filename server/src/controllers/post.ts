@@ -127,7 +127,6 @@ export const createPost = [
       const post: Post = await prisma.post.create(queryArgs);
       return res.status(201).json({ success: true, data: post });
     } catch (error) {
-      console.error(error)
       return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
     }
   }

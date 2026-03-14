@@ -8,10 +8,11 @@ import { Link } from "react-router";
 import Post from "@/components/Post";
 import { Virtuoso } from "react-virtuoso";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 export default function FollowingPosts() {
   const [ posts, setPosts ] = useState<PostsRes[]>([]);
-  const [ error, setError ] = useState<ApiError | null>(null);
+  const [ error, setError ] = useState(false);
   const [ loading, setLoading ] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const allLoaded = useRef(false);
@@ -19,25 +20,29 @@ export default function FollowingPosts() {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const res = await apiFetch(`/posts`);
-      if(res.success) {
+      setError(false)
+      try {
+        const res = await apiFetch(`/posts`);
         setPosts(res.data);
-        
-      } else if(res.error instanceof ApiError) {
-        setError(res.error);
-      } else {
-        setError(new ApiError("Something went wrong, try again", "server", []));
+      } catch (error) {
+        setError(true)
+        if (error instanceof ApiError) {
+          toast(error.msg)
+        } else {
+          toast("Something went wrong, try again")
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchPosts();
   }, []);
 
   const loadMore = async () => {
+    setError(false)
     // Prevent multiple triggers and loading if all posts are fetched
     if (isFetchingMore || allLoaded.current) return;
     const cursor = posts[posts.length - 1].id;
-    console.log(cursor)
     setIsFetchingMore(true);
     try {
       const res = await apiFetch(`/posts/?cursor=${cursor}`);
@@ -51,7 +56,12 @@ export default function FollowingPosts() {
         allLoaded.current = true;
       }
     } catch (error) {
-      setError(new ApiError("Something went wrong, try again", "server", []));
+      setError(true)
+      if (error instanceof ApiError) {
+        toast(error.msg)
+      } else {
+        toast("Something went wrong, try again")
+      }
       allLoaded.current = true;
     } finally {
       setIsFetchingMore(false);
@@ -64,7 +74,6 @@ export default function FollowingPosts() {
 
   return (
     <div className="pt-6 pb-6">
-      {error && <div>{error.msg}</div>}
       {posts.length > 0 
       ?  <Virtuoso
       style={{ height: "100%", width: "100%" }}
@@ -94,7 +103,7 @@ export default function FollowingPosts() {
           )
       }}
     />
-      : <p>Follow users to view their posts here. <Link to="/dashboard/discover">View other users posts.</Link></p>
+      : error ? <p>Could not load posts</p> : <p>Follow users to view their posts here. <Link to="/dashboard/discover">View other users posts.</Link></p>
       }
     </div>
   )}

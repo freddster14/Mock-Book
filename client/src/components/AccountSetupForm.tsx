@@ -33,7 +33,6 @@ export default function AccountSetupForm({ formData, setFormData, setStep }: {
     }
 
     try {
-   
       await userFormFetch("/set-up", formData);
       setStep(2)
     } catch (error) {
@@ -56,48 +55,51 @@ export default function AccountSetupForm({ formData, setFormData, setStep }: {
     }
   }
   return (
-    <Card className="w-full max-w-lg p-5">
-      <CardHeader>
-        <CardTitle>Account</CardTitle>
-        <CardDescription>Enter your information to start creating your account</CardDescription>
-        <CardAction>
-          <Button variant="link"><Link to="/sign-in">Sign In</Link></Button> 
-        </CardAction>
-      </CardHeader>
-      <CardContent>
-      <form onSubmit={handleSubmit} id="account-set-up">
-        <FieldGroup>
-          <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
-            <Input placeholder="mock@book.com" aria-invalid={typeof errors === 'object' && errors.email !== undefined} id="email" autoComplete="email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
-            <FieldError>{typeof errors === "object" && errors.email}</FieldError>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <InputGroup>
-              <InputGroupInput aria-invalid={typeof errors === "object" && errors.password !== undefined} id="password" type={showPassword ? "text" : "password"} value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})}/>
-              <InputGroupAddon align="inline-end">
-                <Button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                >{showPassword ? "Hide" : "Show"}</Button>
-              </InputGroupAddon>  
-            </InputGroup>
-            <FieldDescription>Min. 6 characters, contain a uppercase letter and a special character</FieldDescription>
-            <FieldError>{typeof errors === "object" && errors.password}</FieldError>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="confirm">Confirm</FieldLabel>
-            <Input aria-invalid={typeof errors === "object" && errors.confirm !== undefined} id="confirm" type="password" value={formData.confirm} onChange={(e) => setFormData({...formData, confirm: e.target.value})}/>
-            <FieldError>{typeof errors === "object" && errors.confirm}</FieldError>
-          </Field>
-        </FieldGroup>
-      </form>
-      </CardContent>
-      <CardFooter>
-        <Button type="submit" form="account-set-up">{isSubmitting ? "Loading...": "Next"}</Button>
-      </CardFooter>
-     
-    </Card>  
+    <>
+      <Card className="w-full max-w-lg p-5">
+        <CardHeader>
+          <CardTitle>Account</CardTitle>
+          <CardDescription>Enter your information to start creating your account</CardDescription>
+          <CardAction>
+            <Button variant="link"><Link to="/sign-in">Sign In</Link></Button> 
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+        <form onSubmit={handleSubmit} id="account-set-up">
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input placeholder="mock@book.com" aria-invalid={typeof errors === 'object' && errors.email !== undefined} id="email" autoComplete="email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              <FieldError>{typeof errors === "object" && errors.email}</FieldError>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <InputGroup>
+                <InputGroupInput aria-invalid={typeof errors === "object" && errors.password !== undefined} id="password" type={showPassword ? "text" : "password"} value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})}/>
+                <InputGroupAddon align="inline-end">
+                  <Button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >{showPassword ? "Hide" : "Show"}</Button>
+                </InputGroupAddon>  
+              </InputGroup>
+              <FieldDescription>Min. 6 characters, contain a uppercase letter and a special character</FieldDescription>
+              <FieldError>{typeof errors === "object" && errors.password}</FieldError>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="confirm">Confirm</FieldLabel>
+              <Input aria-invalid={typeof errors === "object" && errors.confirm !== undefined} id="confirm" type="password" value={formData.confirm} onChange={(e) => setFormData({...formData, confirm: e.target.value})}/>
+              <FieldError>{typeof errors === "object" && errors.confirm}</FieldError>
+            </Field>
+          </FieldGroup>
+          {typeof errors === "string" && <p>{errors}</p>}
+        </form>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" form="account-set-up">{isSubmitting ? "Loading...": "Next"}</Button>
+        </CardFooter>
+      </Card>  
+    </>
+   
   )
 }

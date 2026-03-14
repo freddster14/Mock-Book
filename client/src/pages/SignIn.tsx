@@ -73,7 +73,7 @@ export default function SignIn() {
               <FieldError>{typeof errors === 'object' && errors.password}</FieldError>
             </Field>
           </FieldGroup>
-          <FieldError>{errors && typeof errors === "string" ? errors : null}</FieldError>
+          <FieldError>{typeof errors === "string" && errors}</FieldError>
         </form>
       </CardContent>
       <CardFooter>

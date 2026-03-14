@@ -7,31 +7,39 @@ import SearchNew from "../components/SearchNew";
 import Post from "@/components/Post";
 import { Virtuoso } from "react-virtuoso";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 export default function DiscoverPosts() {
   const [posts, setPosts] = useState<PostsRes[]>([]);
-  const [error, setError] = useState<ApiError | null>(null);
+  const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const allLoaded = useRef(false);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const res = await apiFetch(`/posts/discover`);
-      if (res.success) {
+      setError(false)
+      try {
+        const res = await apiFetch(`/posts/discover`);
         setPosts(res.data);
         if (!res.data || res.data.length < 5) allLoaded.current = true;
-      } else if (res.error instanceof ApiError) {
-        setError(res.error);
-      } else {
-        setError(new ApiError("Something went wrong, try again", "server", []));
+
+      } catch (error) {
+        setError(true)
+        if (error instanceof ApiError) {
+          toast(error.msg)
+        } else {
+          toast("Something went wrong, try again")
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchPosts();
   }, []);
 
   const loadMore = async () => {
+    setError(false)
     // Prevent multiple triggers and loading if all posts are fetched
     if (isFetchingMore || allLoaded.current) return;
     setIsFetchingMore(true);
@@ -48,7 +56,12 @@ export default function DiscoverPosts() {
         allLoaded.current = true;
       }
     } catch (error) {
-      setError(new ApiError("Something went wrong, try again", "server", []));
+      setError(true)
+      if (error instanceof ApiError) {
+        toast(error.msg)
+      } else {
+        toast("Something went wrong, try again")
+      }
       allLoaded.current = true;
     } finally {
       setIsFetchingMore(false);
@@ -61,9 +74,8 @@ export default function DiscoverPosts() {
   }
 
   return (
-    <div className="pt-6 pb-6">
+    <div>
       <SearchNew />
-      {error && <div>{error.msg}</div>}
       <Virtuoso
         style={{ height: "100%", width: "100%" }}
         data={posts}
@@ -86,7 +98,7 @@ export default function DiscoverPosts() {
                 justifyContent: "center",
               }}
             >
-              { isFetchingMore && !allLoaded.current ? "Loading..." : "No more posts."}
+              { isFetchingMore && !allLoaded.current ? "Loading..." : !error ? "No more posts." : ""}
             </div>
           )
         }}

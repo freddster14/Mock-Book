@@ -8,6 +8,7 @@ import { Button } from "./ui/button"
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import TimeAgo from "timeago-react"
 import { Separator } from "./ui/separator"
+import { toast } from "sonner"
 
 export default function PostComment({ commentCount, postId, authorId }: { commentCount: number, postId: number, authorId: number}) {
   const { user } = useAuth();
@@ -22,18 +23,21 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
   const allLoaded = useRef(false)
   const virtuso = useRef<VirtuosoHandle>(null)
 
-  const loadComments = () => {
-    const fetchComments = async () => {
-      const res = await apiFetch(`/comments/${postId}`);
-      if (res.success) {
+  const loadComments = async () => {
+      try {
+        const res = await apiFetch(`/comments/${postId}`);
         setComments(res.data)
         if (!res.data || res.data.length < 5) allLoaded.current = true;
-      } else if(res.error instanceof ApiError) {
-        setError(res.error.msg);
+      } catch (error) {
+        if(error instanceof ApiError) {
+          setError(error.msg);
+          toast(error.msg)
+        } else {
+          toast("Something went wrong, try again")
+        }
+      } finally {
+        setShowComments(true)
       }
-      setShowComments(true)
-    }
-    fetchComments();
   } 
 
   const handleComment = async (e: React.SyntheticEvent) => {
@@ -63,6 +67,11 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
       setComments(prev => [res.data, ...prev])
       setCount( prev => prev + 1)
     } catch (error) {
+      if(error instanceof ApiError) {
+        toast(error.msg)
+      } else {
+        toast("Something went wrong, try again")
+      }
     } finally {
       setIsSubmitting(false);
       setUserComments(temp)
@@ -82,7 +91,11 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
         allLoaded.current = true;
       }
     } catch (error) {
-      setError("Something went wrong, try again");
+      if(error instanceof ApiError) {
+        toast(error.msg)
+      } else {
+        toast("Something went wrong, try again")
+      }
       allLoaded.current = true
     } finally {
       setIsFetchMore(false)
@@ -97,12 +110,14 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
       setCount(prev => prev - 1)
       setComments(newComments)
     } catch (error) {
-      console.error(error)
+      if(error instanceof ApiError) {
+        toast(error.msg)
+      } else {
+        toast("Something went wrong, try again")
+      }
     }
   }
  
-
-
   return (
     <>
       <p><button onClick={loadComments}>CommentLogo</button> {count}</p>
@@ -127,7 +142,7 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
             }
           </div>
           <div className="flex flex-col-reverse">
-            { !error && comments.length > 0
+            {comments.length > 0
             ? 
               <Virtuoso
               style={{ height: "50vh", width: "100%" }}
@@ -158,7 +173,7 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
               />
               : !error 
               ? <p>No comments yet</p> 
-              : <p>{error}</p>
+              : <p>"Could not retrieve comments try again later."</p>
             }
           </div>
           <form onSubmit={handleComment}>

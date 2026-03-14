@@ -1,48 +1,68 @@
 import { useEffect, useRef, useState } from "react";
 import { apiFetch } from "../api/fetch";
+import { Spinner } from "./ui/spinner";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
+import { ApiError } from "@/types";
 
 export default function Like({ likeCount, postId }: { likeCount: number, postId: number } ) {
   const timerRef = useRef<null | number>(null)
-  const [ likeStatus, setLikeStatus ] = useState(false) // Add feature where like is tracked on post
+  const [ likeStatus, setLikeStatus ] = useState<boolean | null>(null)
   const [ count, setCount ] = useState(likeCount)
 
   useEffect(() => {
     const checkLikeStatus = async () => {
-      const res = await apiFetch(`/likes/status/${postId}`)
-      if (res.data.status === "liked") setLikeStatus(true)
-      // show error for success false
-    }
-    checkLikeStatus()
-  }, [])
+      const res = await apiFetch(`/likes/status/${postId}`);
+      if (res.success) {
+        setLikeStatus(res.data.status === "liked");
+      } else {
+        setLikeStatus(null);
+      }
+    };
+    checkLikeStatus();
+  }, []);
 
   const handleLike = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    const currentStatus = likeStatus;
     const prevCount = count;
-    // Immediatly show change
-    if (!likeStatus) {
+
+    if (!currentStatus) {
+      console.log("status: liked")
       setLikeStatus(true);
-      setCount(prev => prev + 1)
+      setCount(prev => prev + 1);
     } else {
+      console.log("status: unliked")
       setLikeStatus(false);
-      setCount(prev => prev - 1)
+      setCount(prev => prev - 1);
     }
-    // Delay to fully submit/remove the like
-    timerRef.current = setTimeout( async () => {
-      if(!likeStatus) {
-        const res = await apiFetch(`/likes/${postId}`, { method: "POST" })
-        if(!res.success) {
-          setLikeStatus(false);
-          setCount(prevCount)
+    // Perform the action after short delay (debounce)
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(async () => {
+      try {
+        if (!currentStatus) {
+          await apiFetch(`/likes/${postId}`, { method: "POST" });
+        } else {
+          await apiFetch(`/likes/${postId}`, { method: "DELETE" });
         }
-      } else {
-        const res = await apiFetch(`/likes/${postId}`, { method: "DELETE" })
-        if (!res.success) {
-          setLikeStatus(true)
-          setCount(prevCount)
-        }
+      } catch (err) {
+        if(err instanceof ApiError) {
+          if (!currentStatus) {
+            if(err.msg !== "Post liked already") {
+              setLikeStatus(false);
+              setCount(prevCount);
+              toast(err.msg);
+            } 
+          } else {
+            if (err.type !== "not_found") {
+              setLikeStatus(true);
+              setCount(prevCount);
+              toast(err.msg);
+            }
+          }
+        }       
       }
-    }, 1000);
-  }
+    }, 400); // Slightly lower debounce for better UX
+  };
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -50,6 +70,10 @@ export default function Like({ likeCount, postId }: { likeCount: number, postId:
   }, [])
 
   return (
-    <p><button onClick={handleLike}>{likeStatus ? "Unlike" : "Like"}</button> {count}</p>
+    <>
+      { likeStatus === null ? <Spinner />
+      : <p><Button onClick={handleLike}>{likeStatus ? "Unlike" : "Like"}</Button> {count}</p>
+      }
+    </>
   )
 }

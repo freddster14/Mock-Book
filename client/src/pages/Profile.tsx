@@ -14,7 +14,7 @@ export default function Profile() {
   const navigate = useNavigate()
 
   return (
-    <div className="mt-6">
+    <div>
       <div className="flex gap-4">
         <Avatar className="w-[20vw] h-[20vw] max-w-38 max-h-38 aspect-square">
           {currUser.avatarUrl
@@ -39,15 +39,16 @@ export default function Profile() {
       </div>
       <p>{currUser.bio}</p>
       <div>
-        {currUser.posts.length > 0 ? (
+        {currUser.posts.length > 0 ? 
           currUser.posts.map((p, i) => (
             <div key={p.id} onClick={() => navigate(`posts/${currUser.id}/?index=${i}`)} style={{ cursor: "pointer" }}>
               <p>{p.content}</p>
             </div>
           ))
-        ) : (
-          <p>No Posts</p>
-        )}
+          : user?.userId === currUser.id
+          ? <p>Create your first post. <Link to={`/dashboard/create-post`}><Button>Create</Button></Link></p>
+          : <p>No Posts Yet</p>
+        }
       </div>
     </div>
   );
@@ -59,11 +60,11 @@ export function UserPosts() {
   const res = useLoaderData()
   const initialIndex = parseInt(searchParams.get("index") || "0");
   const posts = res.data;
-  console.log(user)
+
   return (
-    <div className="mt-6">
-      <Link to={`/dashboard/profile/${user}`}>{`<- ${user}`}</Link>
-     <Virtuoso
+    <div>
+      <Link to={`/dashboard/profile/${user}`}><Button variant="link">{`<- ${user}`}</Button></Link>
+      <Virtuoso
       style={{ height: "60dvh", width: "100%" }}
       totalCount={posts.length}
       initialTopMostItemIndex={initialIndex}

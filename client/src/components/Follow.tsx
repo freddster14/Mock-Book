@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../api/fetch";
 import { Button } from "./ui/button";
+import { Spinner } from "./ui/spinner";
 
 export default function Follow({ recipientId } : { recipientId : number}) {
-  const [ following, setFollowing ] = useState(false);
+  const [ following, setFollowing ] = useState< boolean | null>(null);
   const [ isSubmitting, setIsSubmitting ] = useState(false)
 
   useEffect(() => {
     const followingStatus = async () => {
       const res = await apiFetch(`/connections/status/${recipientId}`)
-      if (res.data.status === "following") setFollowing(true)
+      if (res.success) {
+        if (res.data.status === "following") setFollowing(true)
+        else setFollowing(false)
+      } else {
+        setFollowing(null)
+      }
     }
     followingStatus()
   }, [])
@@ -32,6 +38,14 @@ export default function Follow({ recipientId } : { recipientId : number}) {
   }
 
   return (
-    <Button size="sm" disabled={isSubmitting} onClick={followUser}>{following ? "Following" : "Follow"}</Button>
+    <>
+     { following === null
+      ? <Spinner className="mr-5"/>
+      : <Button size="sm" disabled={isSubmitting} onClick={followUser}>{following ? "Following" : "Follow"}</Button>
+
+
+    }
+    </>
+   
   )
 }

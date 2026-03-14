@@ -10,11 +10,14 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import TimeAgo from "timeago-react";
+import { toast } from "sonner";
+import { ApiError } from "@/types";
 
 export default function Post({ post }: { post: PostsRes }) {
   const { user } = useAuth();
   const [ isSubmitting, setIsSubmitting ] = useState(false);
-  const [ deleted, setDeleted ] = useState(false)
+  const [ deleted, setDeleted ] = useState(false);
+
   const handleDelete = async () => {
     if(isSubmitting) return;
     setIsSubmitting(true);
@@ -22,7 +25,11 @@ export default function Post({ post }: { post: PostsRes }) {
       await apiFetch(`/posts/${post.id}`, { method: "DELETE" })
       setDeleted(true)
     } catch (error) {
-      console.error(error)
+      if (error instanceof ApiError) {
+        toast(error.msg)
+      } else {
+        toast("Something went wrong, try again")
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -63,7 +70,6 @@ export default function Post({ post }: { post: PostsRes }) {
         <Like likeCount={post._count.likes} postId={post.id}/>
         <PostComment commentCount={post._count.comments} postId={post.id} authorId={post.authorId}/>
       </div>
-   
     </div>
   )
 }

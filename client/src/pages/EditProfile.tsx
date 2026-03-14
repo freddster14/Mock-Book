@@ -9,6 +9,7 @@ import { ApiError } from "@/types";
 import { AccountCreationError } from "@/types/formErrors";
 import React, { useState } from "react";
 import { Link, useLoaderData, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 export default function EditProfile() {
   const { setUser } = useAuth()
@@ -58,7 +59,7 @@ export default function EditProfile() {
   const previewImg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file){
-      setErrors("Could not upload image try again")
+      toast("Could not upload image try again")
       return;
     }
     setSelectedFile(file)

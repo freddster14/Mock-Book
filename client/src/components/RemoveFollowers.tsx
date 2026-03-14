@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { apiFetch } from "@/api/fetch";
+import { ApiError } from "@/types";
+import { toast } from "sonner";
 
 export default function RemoveFollowers({ recipientId }: { recipientId: number }) {
   const [ isRemoving, setIsRemoving ] = useState(false);
@@ -11,7 +13,11 @@ export default function RemoveFollowers({ recipientId }: { recipientId: number }
       await apiFetch(`/connection/remove/${recipientId}`, { method: "DELETE" })
       setUnfollowed(true)
     } catch (error) {
-      console.error(error)
+      if (error instanceof ApiError) {
+        toast(error.msg)
+      } else {
+        toast("Something went wrong, try again")
+      }
     } finally {
       setIsRemoving(false)
     }

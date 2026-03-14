@@ -1,5 +1,27 @@
-import { Navigate } from "react-router";
+import Nav from "@/components/Nav";
+import { Button } from "@/components/ui/button";
+import { ApiError } from "@/types";
+import { useEffect } from "react";
+import { Link, useRouteError } from "react-router";
+import { toast } from "sonner";
 
 export default function Error() {
-  return <Navigate to="/sign-in"/>
+  let error = useRouteError();
+  useEffect(() => {
+    const wait = setTimeout(() => {
+      if(error instanceof ApiError)
+      toast(error.msg)
+    }, 250)
+    return () => clearTimeout(wait)
+  })
+  if (error instanceof ApiError) {
+    return (
+      <>
+        <Nav />
+        <p className="absolute top-2/5 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-75">
+        Apolgize something did not go as planned. Head back <Link to="/dashboard/discover"><Button className="p-0" variant="link">discover page.</Button></Link>
+        </p>
+      </>
+    );
+  }
 }
