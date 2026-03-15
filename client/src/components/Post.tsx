@@ -66,7 +66,7 @@ export default function Post({ post }: { post: PostsRes }) {
         {post.imgUrl && <img src={post.imgUrl} alt={post.content} />}
       </div>
       <Separator />
-      <div className="flex gap-3">
+      <div className="flex gap-3 items-center">
         <Like likeCount={post._count.likes} postId={post.id}/>
         <PostComment commentCount={post._count.comments} postId={post.id} authorId={post.authorId}/>
       </div>

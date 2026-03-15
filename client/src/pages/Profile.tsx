@@ -1,17 +1,49 @@
-import { Link, NavLink, useLoaderData, useNavigate, useParams, useSearchParams } from "react-router";
-import { ProfileRes } from "shared-types";
+import { Link, NavLink, useLoaderData } from "react-router";
+import { PostsRes, ProfileRes } from "shared-types";
 import Follow from "../components/Follow";
 import { useAuth } from "@/context/AuthContext";
 import { Virtuoso } from "react-virtuoso";
 import Post from "@/components/Post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
+import { apiFetch } from "@/api/fetch";
+import { ApiError } from "@/types";
 
 export default function Profile() {
   const { user } = useAuth();
   const res = useLoaderData();
+  const [ error , setError ] = useState(false)
   const currUser: ProfileRes = res.data;
-  const navigate = useNavigate()
+  const [ posts, setPosts ] = useState<PostsRes[]>(res.data.posts)
+  const [ isFetchingMore, setIsFetchMore ] = useState(false)
+  const allLoaded = useRef(false)
+
+  const loadMore = async () => {
+    setError(false);
+    if (isFetchingMore || allLoaded.current) return;
+    setIsFetchMore(true);
+    const cursor = posts[posts.length - 1]
+    try {
+      const res = await apiFetch(`/posts/${cursor.authorId}/?cursor=${cursor.id}`)
+      if (res.data && res.data.length > 0) {
+        setPosts(prev => [...prev, ...res.data])
+      } else {
+        allLoaded.current = true;
+      }
+    } catch (error) {
+      setError(true)
+      if(error instanceof ApiError) {
+        toast(error.msg)
+      } else {
+        toast("Something went wrong, try again")
+      }
+      allLoaded.current = true
+    } finally {
+      setIsFetchMore(false)
+    }
+  }
 
   return (
     <div>
@@ -39,42 +71,38 @@ export default function Profile() {
       </div>
       <p>{currUser.bio}</p>
       <div>
-        {currUser.posts.length > 0 ? 
-          currUser.posts.map((p, i) => (
-            <div key={p.id} onClick={() => navigate(`posts/${currUser.id}/?index=${i}`)} style={{ cursor: "pointer" }}>
-              <p>{p.content}</p>
+        {posts.length > 0 ? 
+          <Virtuoso
+          style={{ height: "60dvh", width: "100%" }}
+          data={posts}
+          endReached={loadMore}
+          useWindowScroll={true}
+          atBottomThreshold={300}
+          itemContent={i => (
+            <div style={{ borderBottom: "1px solid #eee", padding: 16 }}>
+              <Post post={posts[i]} />
             </div>
-          ))
+          )}
+          components={{
+            Footer: () => (
+              <div
+                style={{
+                  padding: "1rem",
+                  paddingBottom: "100px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                { isFetchingMore && !allLoaded.current ? "Loading..." : !error ? "No more posts." : ""}
+              </div>
+            )
+          }}
+        />
           : user?.userId === currUser.id
           ? <p>Create your first post. <Link to={`/dashboard/create-post`}><Button>Create</Button></Link></p>
           : <p>No Posts Yet</p>
         }
       </div>
     </div>
-  );
-}
-
-export function UserPosts() {
-  const [searchParams] = useSearchParams();
-  const { user } = useParams();
-  const res = useLoaderData()
-  const initialIndex = parseInt(searchParams.get("index") || "0");
-  const posts = res.data;
-
-  return (
-    <div>
-      <Link to={`/dashboard/profile/${user}`}><Button variant="link">{`<- ${user}`}</Button></Link>
-      <Virtuoso
-      style={{ height: "60dvh", width: "100%" }}
-      totalCount={posts.length}
-      initialTopMostItemIndex={initialIndex}
-      itemContent={i => (
-        <div style={{ borderBottom: "1px solid #eee", padding: 16 }}>
-          <Post post={posts[i]} />
-        </div>
-      )}
-    />
-    </div>
-   
   );
 }

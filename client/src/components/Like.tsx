@@ -27,11 +27,9 @@ export default function Like({ likeCount, postId }: { likeCount: number, postId:
     const prevCount = count;
 
     if (!currentStatus) {
-      console.log("status: liked")
       setLikeStatus(true);
       setCount(prev => prev + 1);
     } else {
-      console.log("status: unliked")
       setLikeStatus(false);
       setCount(prev => prev - 1);
     }

@@ -53,10 +53,21 @@ export const profileAndPost = async (req: Request<{ username: string }>, res: Re
       },
       include: {
         posts: {
-          select: {
-            id: true,
-            content: true,
-            imgUrl: true,
+          take: 6,
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                avatarUrl: true,
+              }
+            },
+            _count: {
+              select: {
+                likes: true,
+                comments: true,
+              }
+            }
           },
           orderBy: {
             id: 'desc'

@@ -43,11 +43,6 @@ export const router = createBrowserRouter([
         loader: async () => await apiFetch('/users/info')
       },
       {
-        path: "profile/:user/posts/:userId",
-        Component: UserPosts,
-        loader: async ({ params }) => await apiFetch(`/posts/${params.userId}`),
-      },
-      {
         path: "create-post",
         Component: CreatePostForm,
       },

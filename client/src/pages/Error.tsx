@@ -1,11 +1,14 @@
 import Nav from "@/components/Nav";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/types";
 import { useEffect } from "react";
-import { Link, useRouteError } from "react-router";
+import { Link, useNavigate, useRouteError } from "react-router";
 import { toast } from "sonner";
 
 export default function Error() {
+  const { user } = useAuth()
+  const navigate = useNavigate();
   let error = useRouteError();
   useEffect(() => {
     const wait = setTimeout(() => {
@@ -14,6 +17,9 @@ export default function Error() {
     }, 250)
     return () => clearTimeout(wait)
   })
+  if (!user) {
+    navigate(`/sign-in`)
+  }
   if (error instanceof ApiError) {
     return (
       <>

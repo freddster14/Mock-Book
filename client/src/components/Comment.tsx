@@ -120,7 +120,7 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
  
   return (
     <>
-      <p><button onClick={loadComments}>CommentLogo</button> {count}</p>
+      <p><Button onClick={loadComments}>Comments</Button> {count}</p>
       {showComments && 
         <div>
           <div>

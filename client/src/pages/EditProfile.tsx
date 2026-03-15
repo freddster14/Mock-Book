@@ -67,7 +67,7 @@ export default function EditProfile() {
   }
 
   return (
-    <div className="mt-6">
+    <div>
       <Card className="w-full max-w-xl p-5 pr-0 pl-0">
         <CardHeader>
           <CardTitle>Edit</CardTitle>
