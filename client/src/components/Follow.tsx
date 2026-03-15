@@ -42,8 +42,6 @@ export default function Follow({ recipientId } : { recipientId : number}) {
      { following === null
       ? <Spinner className="mr-5"/>
       : <Button size="sm" disabled={isSubmitting} onClick={followUser}>{following ? "Following" : "Follow"}</Button>
-
-
     }
     </>
    

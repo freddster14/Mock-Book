@@ -6,7 +6,7 @@ import Dashboard from "../pages/Dashboard";
 import CreatePostForm from "../components/CreatePostForm";
 import FollowingPosts from "../pages/FollowingPosts";
 import DiscoverPosts from "../pages/DiscoverPosts";
-import Profile, { UserPosts } from "../pages/Profile";
+import Profile from "../pages/Profile";
 import { apiFetch } from "../api/fetch";
 import Error from "@/pages/Error";
 import UserConnection from "@/pages/UserConnections";

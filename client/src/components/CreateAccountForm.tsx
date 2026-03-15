@@ -46,6 +46,7 @@ export default function CreateAccountForm({ formData, setFormData, setStep }:
       if (selectedFile) newFormData.append("avatar", selectedFile)
 
       const res = await userFormFetch("/sign-up", newFormData);
+      console.log(res.data)
       setUser(res.data)
       navigate("/dashboard");
     } catch (error) {

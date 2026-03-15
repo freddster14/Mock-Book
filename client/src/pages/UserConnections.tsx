@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { NavLink, Outlet, useParams } from "react-router";
 
 export default function UserConnection() {
@@ -11,6 +12,7 @@ export default function UserConnection() {
         <NavLink to={`/dashboard/connections/${username}/following`}><Button variant="link">Following</Button></NavLink>
         {/* <NavLink to={`/connections/${username}/mutuals`}>Mutuals</NavLink> */}
       </div>
+      <Separator className="mt-2 mb-3" />
       <Outlet />
     </div>
   )

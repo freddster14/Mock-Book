@@ -66,7 +66,6 @@ export default function DiscoverPosts() {
     } finally {
       setIsFetchingMore(false);
     }
-
   };
 
   if (loading) {

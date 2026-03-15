@@ -1,6 +1,7 @@
 import { ApiResult, Follower, Following } from "shared-types";
 import { prisma } from "../../prisma/client";
 import { Request, Response } from "express"
+import { Prisma } from "../../generated/prisma/client";
 
 export const follow = async (req: Request<{ recipientId: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { recipientId } = req.params;
@@ -29,9 +30,14 @@ export const follow = async (req: Request<{ recipientId: string }>, res: Respons
 
 export const followers = async (req: Request<{ username: string }>, res: Response<ApiResult<Follower[]>>) => {
   const { username } = req.params
+  const { cursor } = req.query;
   try {
+    const user = await prisma.user.findFirst({ where: { username }})
+    if (!user) return res.status(404).json({ success: false, error: { type: "not_found", msg: "User not found" }})
+
     // Find all the users that the current user is following
-    const followers = await prisma.connection.findMany({
+    const queryArgs: Prisma.ConnectionFindManyArgs = {
+      take: 12,
       where: { recipient: { username }},
       include: {
         user: {
@@ -42,7 +48,22 @@ export const followers = async (req: Request<{ username: string }>, res: Respons
           }
         }
       }
-    });
+    }
+
+    if (cursor) {
+      console.log(cursor)
+      queryArgs.cursor = {
+        userId_recipientId: {
+          userId: Number(cursor),
+          recipientId: user.id
+        }
+      };
+      queryArgs.skip = 1;
+    }
+
+    const followers = await prisma.connection.findMany(queryArgs) as unknown as
+    { user: { username: string, id: number, avatarUrl: string}; createdAt: Date}[];
+
     const users = followers.map(f => {
       return {
         username: f.user.username,
@@ -50,9 +71,8 @@ export const followers = async (req: Request<{ username: string }>, res: Respons
         avatarUrl: f.user.avatarUrl,
         createdAt: f.createdAt
       }
-     
     })
-
+    console.log(users)
     return res.status(200).json({ success: true, data: users })
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
@@ -61,10 +81,17 @@ export const followers = async (req: Request<{ username: string }>, res: Respons
 
 export const following = async (req: Request<{ username: string }>, res: Response<ApiResult<Following[]>>) => {
   const { username } = req.params
+  const { cursor } = req.query;
   try {
+    const user = await prisma.user.findFirst({ where: { username }})
+    if (!user) return res.status(404).json({ success: false, error: { type: "not_found", msg: "User not found" }})
     // Find all the users that are following the current user
-    const following = await prisma.connection.findMany({
+    const queryArgs: Prisma.ConnectionFindManyArgs = {
+      take: 12,
       where: { user: { username: username }},
+      orderBy: {
+        createdAt: 'desc'
+      },
       include: {
         recipient: {
           select: {
@@ -74,7 +101,19 @@ export const following = async (req: Request<{ username: string }>, res: Respons
           }
         }
       }
-    })
+    };
+
+    if (cursor) {
+      queryArgs.cursor = {
+        userId_recipientId: {
+          userId: user.id,
+          recipientId: Number(cursor)
+        }
+      };
+      queryArgs.skip = 1;
+    }
+    const following = await prisma.connection.findMany(queryArgs) as unknown as 
+    { recipient: { username: string, id: number, avatarUrl: string}; createdAt: Date}[]
     const users = following.map(f => {
       return {
         username: f.recipient.username,
@@ -84,7 +123,7 @@ export const following = async (req: Request<{ username: string }>, res: Respons
       }
      
     })
-
+    console.log(users)
 
     return res.status(200).json({ success: true, data: users })
   } catch (error) {

@@ -16,7 +16,7 @@ export const create = [
   upload.single('avatar'),
   ...validateProfile,
   handleValidation,
-  async (req: Request<{}, {}, UserBody>, res: Response<ApiResult<{ msg: string }>>) => {
+  async (req: Request<{}, {}, UserBody>, res: Response<ApiResult<UserToken>>) => {
     const { username, email, password, bio } = req.body;
 
     try {
@@ -66,7 +66,7 @@ export const create = [
         maxAge: 15 * 60 * 1000 // 15 minutes
       })
 
-      return res.status(201).json({ success: true, data: { msg: "Created" } })
+      return res.status(201).json({ success: true, data: { userId: user.id, username: user.username, avatarUrl: user.avatarUrl } })
     } catch (error) {
       return res.status(500).json({ success: false, error: { type: "server", msg: "Server Error" }})
     }

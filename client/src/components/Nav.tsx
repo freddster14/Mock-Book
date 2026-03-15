@@ -20,6 +20,7 @@ export default function Nav() {
       }
     }
   }
+  console.log(user)
   return (
     <nav>
       <div className="w-full justify-center  flex fixed p-5 left-50 top-0 -translate-x-50 gap-10 bg-white">
