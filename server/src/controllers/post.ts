@@ -173,6 +173,9 @@ export const userPosts = async (req: Request<{ userId: string }, {}, {}, { curso
   }
 }
 
+
+
+
 export const remove = async (req: Request<{ id: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { id } = req.params;
   try {

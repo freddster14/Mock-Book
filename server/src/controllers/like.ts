@@ -1,6 +1,7 @@
 import { ApiResult, Like, Post, PostLikes } from "shared-types";
 import { Request, Response } from "express";
 import { prisma } from "../../prisma/client";
+import { Prisma } from "../../generated/prisma/client";
 
 export const like = async (req: Request<{ postId: string }>, res: Response<ApiResult<{ msg: string }>>) => {
   const { postId } = req.params
@@ -35,31 +36,59 @@ export const like = async (req: Request<{ postId: string }>, res: Response<ApiRe
 
 export const postLikes = async (req: Request<{ postId: string }>, res: Response<ApiResult<PostLikes[]>>) => {
   const { postId } = req.params
+  const { cursor } = req.query;
   try {
     // Check if the post exists
-    const post = await prisma.post.count({
+    const post = await prisma.post.findFirst({
       where: { id: parseInt(postId)}
     }) 
-    if (post === 0) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "Post not found" }});
+    if (!post) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "Post not found" }});
 
     // Find all the likes for the post
-    const postLikes: PostLikes[] = await prisma.like.findMany({
+    const queryArgs: Prisma.LikeFindManyArgs = {
+      take:10,
       where: { postId: parseInt(postId) },
+      orderBy: {
+        createdAt: 'desc'
+      },
       include: {
         user: {
           select: {
             id: true,
             username: true,
+            avatarUrl: true,
           }
         }    
       }
-    });
+    }
 
+    if (cursor) {
+      queryArgs.cursor = { postId_userId: { userId: Number(cursor), postId: post.id} };
+      queryArgs.skip = 1;
+    }
+
+    const postLikes = await prisma.like.findMany(queryArgs) as unknown as PostLikes[];
+    console.log(postLikes)
     return res.status(200).json({ success: true , data: postLikes })
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
   }
 }
+
+
+export const recentLikes = async (req: Request, res: Response) => {
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        likes: {
+          
+        }
+      }
+    })
+  } catch (error) {
+    return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
+  }
+} 
 
 export const likeStatus = async (req: Request<{ postId: string }>, res: Response<ApiResult<{ status: string }>>) => {
   const { postId } = req.params;

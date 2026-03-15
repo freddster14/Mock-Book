@@ -11,4 +11,5 @@ post.get('/:userId', verifyUserToken, userPosts)
 
 post.post("/", verifyUserToken, createPost);
 
+
 post.delete('/:id', verifyUserToken, remove);
