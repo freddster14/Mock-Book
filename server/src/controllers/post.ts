@@ -40,7 +40,6 @@ export const followingPosts = async (req: Request<{}, {}, {}, { cursor: string }
     }
 
     if (cursor) {
-      console.log(cursor, "ran")
       queryArgs.cursor = { id: Number(cursor) };
       queryArgs.skip = 1;
     } 
@@ -48,7 +47,6 @@ export const followingPosts = async (req: Request<{}, {}, {}, { cursor: string }
     const posts = await prisma.post.findMany(queryArgs) as unknown as PostsRes[];
     return res.status(200).json({ success: true, data: posts });
   } catch (error) {
-    console.error(error)
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
   }
 }

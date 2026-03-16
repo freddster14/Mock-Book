@@ -59,6 +59,7 @@ export const postComments = async(req: Request<{ postId: string }, {}, {}, { cur
           select: {
             id: true,
             username: true,
+            avatarUrl: true
           }
         },
       }

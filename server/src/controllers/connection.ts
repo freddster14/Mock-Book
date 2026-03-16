@@ -51,7 +51,6 @@ export const followers = async (req: Request<{ username: string }>, res: Respons
     }
 
     if (cursor) {
-      console.log(cursor)
       queryArgs.cursor = {
         userId_recipientId: {
           userId: Number(cursor),
@@ -72,7 +71,7 @@ export const followers = async (req: Request<{ username: string }>, res: Respons
         createdAt: f.createdAt
       }
     })
-    console.log(users)
+
     return res.status(200).json({ success: true, data: users })
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
@@ -123,7 +122,6 @@ export const following = async (req: Request<{ username: string }>, res: Respons
       }
      
     })
-    console.log(users)
 
     return res.status(200).json({ success: true, data: users })
   } catch (error) {

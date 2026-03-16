@@ -151,7 +151,7 @@ export function ProfilePosts() {
         )
       }}
       />
-      : user?.userId === posts[0].authorId
+      : user?.userId === currUser.id
       ? <p>Create your first post. <Link to={`/dashboard/create-post`}><Button>Create</Button></Link></p>
       : <p>No Posts Yet</p>
     }

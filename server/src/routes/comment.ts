@@ -8,6 +8,4 @@ comments.get('/:postId', postComments)
 
 comments.post('/:postId', verifyUserToken, comment)
 
-//comments.patch('/:postId', verifyUserToken, edit)
-
 comments.delete('/:id', verifyUserToken, remove)

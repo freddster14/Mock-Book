@@ -68,7 +68,6 @@ export const postLikes = async (req: Request<{ postId: string }>, res: Response<
     }
 
     const postLikes = await prisma.like.findMany(queryArgs) as unknown as PostLikes[];
-    console.log(postLikes)
     return res.status(200).json({ success: true , data: postLikes })
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});

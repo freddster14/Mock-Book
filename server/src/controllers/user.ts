@@ -160,7 +160,6 @@ export const edit = [
 
       return res.status(200).json({ success: true, data: { userId: user.id, username: user.username, avatarUrl: user.avatarUrl } })
     } catch (error) {
-      console.error(error)
       return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
     }
   }

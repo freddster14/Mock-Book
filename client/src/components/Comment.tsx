@@ -9,6 +9,8 @@ import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import TimeAgo from "timeago-react"
 import { Separator } from "./ui/separator"
 import { toast } from "sonner"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { Input } from "./ui/input"
 
 export default function PostComment({ commentCount, postId, authorId }: { commentCount: number, postId: number, authorId: number}) {
   const { user } = useAuth();
@@ -53,17 +55,18 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
       },
     ])
     setContent("")
+    virtuso.current?.scrollToIndex({
+      index: 0,
+      align: 'start',
+      behavior: 'smooth'
+    })
     const options = {
       method: "POST",
       body: JSON.stringify({ content })
     }
     try {
       const res = await apiFetch(`/comments/${postId}`, options);
-      virtuso.current?.scrollToIndex({
-        index: 0,
-        align: 'start',
-        behavior: 'smooth'
-      })
+    
       setComments(prev => [res.data, ...prev])
       setCount( prev => prev + 1)
     } catch (error) {
@@ -141,47 +144,57 @@ export default function PostComment({ commentCount, postId, authorId }: { commen
               ))
             }
           </div>
-          <div className="flex flex-col-reverse">
+          <div className="flex flex-col fixed w-md bg-gray-100 bottom-16 left-1/2 -translate-x-1/2 z-1 p-6 pb-0 pt-4 pr-0 rounded-md">
+            <div className="pr-6">
+              <h1 className="text-xl text-center">Comments</h1>
+              <button className="absolute text-3xl right-2 top-0 text-black" onClick={() => setShowComments(false)}>&times;</button>
+            </div>
             {comments.length > 0
-            ? 
+              ? 
               <Virtuoso
-              style={{ height: "50vh", width: "100%" }}
-              data={comments}
-              endReached={loadMore}
-              atBottomThreshold={300}
-              ref={virtuso}
-              itemContent={(_i, c) => (
-                <div>
-                  <CommentUI c={c} handleDelete={handleDelete} authorId={authorId} />
-                  <Separator className="mt-4 mb-4" />
-                </div>
-              )}
-              components={{
-                Footer: () => (
-                  <div
-                    style={{
-                      padding: "1rem",
-                      paddingBottom: "2rem",
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    { isFetchingMore && !allLoaded.current ? "Loading..." : "No more comments."}
+                style={{ height: "50vh", width: "100%" }}
+                data={comments}
+                endReached={loadMore}
+                atBottomThreshold={300}
+                ref={virtuso}
+                itemContent={(_i, c) => (
+                  <div>
+                    <CommentUI c={c} handleDelete={handleDelete} authorId={authorId} />
+                    <Separator className="mt-4 mb-4" />
                   </div>
-                )
-              }}
+                )}
+                components={{
+                  Footer: () => (
+                    <div
+                      style={{
+                        padding: "1rem",
+                        paddingBottom: "2rem",
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      { isFetchingMore && !allLoaded.current ? "Loading..." : "No more comments."}
+                    </div>
+                  )
+                }}
               />
               : !error 
               ? <p>No comments yet</p> 
               : <p>"Could not retrieve comments try again later."</p>
             }
+            <form onSubmit={handleComment} className="p-4 pl-0 pr-6 ">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  id="content"
+                  placeholder="Comment something..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                />
+                <Button type="submit">Comment</Button>
+              </div>
+            </form>
           </div>
-          <form onSubmit={handleComment}>
-            <label htmlFor="content">
-              <input type="text" id="content" placeholder="Comment something..." value={content} onChange={(e) => setContent(e.target.value)} />
-              <button type="submit">Comment</button>
-            </label>
-          </form>
         </div>
       }
       
@@ -198,22 +211,25 @@ export function CommentUI({c, handleDelete, authorId}:
 ) {
   const { user } = useAuth();
 
-  
-
   return (
     <>
-      <NavLink to={`/dashboard/profile/${c.author.username}`}>
-      {c.author.avatarUrl ? <img src={c.author.avatarUrl} /> : <div>{c.author.username[0]}</div>}
-      </NavLink>
-      {(authorId === user?.userId || c.authorId === user?.userId)  && <Button onClick={() => handleDelete(c.id)}>Delete</Button> }
-      <div>
+      <div className="flex gap-3 items-center">
+        <NavLink to={`/dashboard/profile/${c.author.username}`}>
+          <Avatar size="lg">
+            {c.author.avatarUrl
+              ? <AvatarImage src={c.author.avatarUrl} />
+              : <AvatarFallback>{c.author.username[0]}</AvatarFallback>
+            }
+          </Avatar>
+        </NavLink>
         <div>
-          <NavLink to={`/dashboard/profile/${c.author.username}`}>
-            <p>Author: {c.author.username}</p>
-          </NavLink>                    
-          <TimeAgo  datetime={new Date(c.createdAt).toLocaleString()}/>
+          <NavLink to={`/dashboard/profile/${c.author.username}`} className="flex gap-2 items-center">
+            <p className="text-lg">{c.author.username}</p>
+            <TimeAgo className="text-xs"  datetime={new Date(c.createdAt).toLocaleString()}/>
+          </NavLink>
+          <p>{c.content}</p>
         </div>
-        <p>{c.content}</p>
+        {(authorId === user?.userId || c.authorId === user?.userId)  && <button className=" ml-auto mr-2 text-3xl text-red-500" onClick={() => handleDelete(c.id)}>&times;</button> }
       </div>
     </>
     

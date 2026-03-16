@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { apiFetch } from "../api/fetch";
 import { toast } from "sonner";
 import { ApiError } from "@/types";
+import { Button } from "./ui/button";
 
 export default function Nav() {
   const { setUser, user } = useAuth();
@@ -21,6 +22,10 @@ export default function Nav() {
     }
   }
 
+  const navLinkClass = ({ isActive }:{isActive: boolean}) => {
+    return `hover:text-primary ${ isActive ? "text-blue-600 underline" : ""}`
+  }
+
   return (
     <nav>
       <div className="w-full justify-center  flex fixed p-5 left-50 top-0 -translate-x-50 gap-10 bg-white">
@@ -28,13 +33,15 @@ export default function Nav() {
         <button onClick={handleLogout}>Logout</button>
       </div> 
       <div className="w-full justify-center  flex fixed p-5 left-50 bottom-0 -translate-x-50 gap-10 bg-white">
-        <NavLink
-        to="/dashboard"
-        className={({ isActive, isPending }) => 
-          isPending ? "pending" : isActive ? "active" : ""
-        }>Following</NavLink>
-        <NavLink to="/dashboard/discover">Discover</NavLink>
-        <NavLink to={`/dashboard/profile/${user?.username}`}>Profile</NavLink>
+        <Button variant="link">
+          <NavLink to="/dashboard" end className={navLinkClass}>Following</NavLink>
+        </Button>
+        <Button variant="link">
+          <NavLink to="/dashboard/discover" className={navLinkClass}>Discover</NavLink>
+        </Button>
+        <Button variant="link">
+          <NavLink to={`/dashboard/profile/${user?.username}`} className={navLinkClass}>Profile</NavLink>
+        </Button>
       </div>
     </nav> 
   )
