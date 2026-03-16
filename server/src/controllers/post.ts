@@ -132,17 +132,17 @@ export const createPost = [
   }
 ]
 // Add offset and skip - pagination for bigger posts queries
-export const userPosts = async (req: Request<{ userId: string }, {}, {}, { cursor: string }>, res: Response<ApiResult<PostsRes[]>>) => {
-  const { userId } = req.params;
+export const userPosts = async (req: Request<{ username: string }, {}, {}, { cursor: string }>, res: Response<ApiResult<PostsRes[]>>) => {
+  const { username } = req.params;
   const { cursor } = req.query;
   try {
 
-    const user = await prisma.user.count({ where: { id: parseInt(userId) }});
-    if (user === 0) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "User not found"}})
+    const user = await prisma.user.findFirst({ where: { username }});
+    if (!user) return res.status(404).json({ success: false, error: { type: 'not_found', msg: "User not found"}})
 
     const queryArgs: Prisma.PostFindManyArgs = {
       take: 6,
-      where: { authorId: parseInt(userId) },
+      where: { authorId: user.id },
       orderBy: {
         createdAt: 'desc'
       },

@@ -1,4 +1,4 @@
-import { ApiResult, Like, Post, PostLikes } from "shared-types";
+import { ApiResult, Like, Post, PostLikes, PostsRes, ProfileRes } from "shared-types";
 import { Request, Response } from "express";
 import { prisma } from "../../prisma/client";
 import { Prisma } from "../../generated/prisma/client";
@@ -46,7 +46,7 @@ export const postLikes = async (req: Request<{ postId: string }>, res: Response<
 
     // Find all the likes for the post
     const queryArgs: Prisma.LikeFindManyArgs = {
-      take:10,
+      take: 10,
       where: { postId: parseInt(postId) },
       orderBy: {
         createdAt: 'desc'
@@ -76,15 +76,56 @@ export const postLikes = async (req: Request<{ postId: string }>, res: Response<
 }
 
 
-export const recentLikes = async (req: Request, res: Response) => {
+export const recentLikes = async (
+  req: Request<{ username: string }, {}, {}, { cursor: string }>,
+  res: Response<ApiResult<PostsRes[]>>
+) => {
+  const { username } = req.params;
+  const { cursor } = req.query;
+
   try {
-    const posts = await prisma.post.findMany({
+    const user = await prisma.user.findUnique({ where: { username }});
+    if (!user) return res.status(404).json({ success: false, error: { type: "not_found", msg: "User not found" }});
+
+    const queryArgs: Prisma.LikeFindManyArgs = {
       where: {
-        likes: {
-          
+        userId: user.id
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 6,
+      include: {
+        post: {
+          include: {
+            author: {
+              select: {
+                username: true,
+                id: true,
+                avatarUrl: true,
+              }
+            },
+            _count: {
+              select: {
+                likes: true,
+                comments: true
+              }
+            }
+          }
         }
       }
-    })
+    }
+      
+    if (cursor) {
+      queryArgs.cursor = { postId_userId: { userId: user.id, postId: Number(cursor)} }
+      queryArgs.skip = 1;
+    }
+    
+    const recentLikes = await prisma.like.findMany(queryArgs) as unknown as {post: PostsRes}[];
+
+    const posts = recentLikes.map(like => like.post);
+   
+    return res.status(200).json({ success: true, data: posts})
   } catch (error) {
     return res.status(500).json({ success: false, error: { type: 'server', msg: "Something went wrong, try again" }});
   }

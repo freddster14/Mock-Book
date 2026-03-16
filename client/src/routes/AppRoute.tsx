@@ -6,7 +6,7 @@ import Dashboard from "../pages/Dashboard";
 import CreatePostForm from "../components/CreatePostForm";
 import FollowingPosts from "../pages/FollowingPosts";
 import DiscoverPosts from "../pages/DiscoverPosts";
-import Profile from "../pages/Profile";
+import Profile, { ProfilePosts } from "../pages/Profile";
 import { apiFetch } from "../api/fetch";
 import Error from "@/pages/Error";
 import UserConnection from "@/pages/UserConnections";
@@ -35,7 +35,17 @@ export const router = createBrowserRouter([
         path: "profile/:username",
         Component: Profile,
         loader: async ({ params }) => await apiFetch(`/users/${params.username}`),
-        
+        children: [
+          { index: true,
+            Component: ProfilePosts,
+            loader: async ({ params }) => await apiFetch(`/posts/${params.username}`),
+
+          },
+          { path: 'likes',
+            Component: ProfilePosts,
+            loader: async ({ params }) => await apiFetch(`/likes/recent/${params.username}`),
+          }
+        ]
       },
       {
         path: "profile/edit/:username",

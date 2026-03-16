@@ -4,10 +4,9 @@ import { createPost, discoverPosts, followingPosts, remove, userPosts } from "..
 
 export const post = Router();
 
-
 post.get('/', verifyUserToken, followingPosts);
 post.get('/discover', verifyUserToken, discoverPosts);
-post.get('/:userId', verifyUserToken, userPosts)
+post.get('/:username', verifyUserToken, userPosts)
 
 post.post("/", verifyUserToken, createPost);
 

@@ -84,7 +84,7 @@ export default function DiscoverPosts() {
         itemContent={(_i, p) => (
           <div>
             <Post post={p} />
-            <Separator className="mt-4 mb-4" />
+            <Separator className="mt-3 mb-3" />
           </div>
         )}
         components={{

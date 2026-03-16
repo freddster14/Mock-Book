@@ -15,12 +15,12 @@ export default function Connections() {
   const { user } = useAuth()
   const { username } = useParams();
   const { pathname } = useLocation();
+  const isFollowersPage = pathname.endsWith('followers');
   const [ error, setError ] = useState(false)
   const [ isFetchingMore, setIsFetchingMore ] = useState(false) 
   const allLoaded = useRef(false)
   const res = useLoaderData();
   const [ users, setUsers ] = useState<Follower[] | Following[]>(res.data)
-  const isFollowersPage = pathname.endsWith('followers');
 
   useEffect(() => {
     setUsers(res.data)

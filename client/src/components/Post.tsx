@@ -41,7 +41,7 @@ export default function Post({ post }: { post: PostsRes }) {
   }
 
   return (
-    <div>
+    <div className="bg-gray-100 p-3 w-full">
       <div className="flex gap-3 p-2 h-fit items-center">
         <NavLink to={`/dashboard/profile/${post.author.username}`}>
           <Avatar size="lg">
@@ -66,7 +66,7 @@ export default function Post({ post }: { post: PostsRes }) {
         {post.imgUrl && <img src={post.imgUrl} alt={post.content} />}
       </div>
       <Separator />
-      <div className="flex gap-3 items-center">
+      <div className="flex gap-3 items-center mt-3">
         <Like likeCount={post._count.likes} postId={post.id}/>
         <PostComment commentCount={post._count.comments} postId={post.id} authorId={post.authorId}/>
       </div>

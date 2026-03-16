@@ -9,7 +9,7 @@ import { toast } from "sonner";
 export default function Error() {
   const { user } = useAuth()
   const navigate = useNavigate();
-  let error = useRouteError();
+  const error = useRouteError();
   useEffect(() => {
     const wait = setTimeout(() => {
       if(error instanceof ApiError)
