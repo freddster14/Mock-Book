@@ -3,9 +3,12 @@ Full-stack social media application with modern user experience. Discover users,
 
 👉 **[View deployed app](https://mock-book.vercel.app/)**
 
-![Profile](./images/your_screenshot.png)
-![Likes](./images/your_screenshot.png)
-![Followers](./images/your_screenshot.png)
+<div align="center">
+  <img src="./images/profile.png" width="33%" />
+  <img src="./images/likes-display.png" width="33%" />
+  <img src="./images/comments-display.png" width="33%" />
+</div>
+
 
 
 ## Features
