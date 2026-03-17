@@ -4,9 +4,9 @@ Full-stack social media application with modern user experience. Discover users,
 👉 **[View deployed app](https://mock-book.vercel.app/)**
 
 <div align="center">
-  <img src="./images/profile.png" width="33%" />
-  <img src="./images/likes-display.png" width="33%" />
-  <img src="./images/comments-display.png" width="33%" />
+  <img src="./images/profile.png" width="45%" />
+  <img src="./images/likes-display.png" width="45%" />
+  <img src="./images/comments-display.png" width="45%" />
 </div>
 
 
