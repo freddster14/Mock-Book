@@ -1,5 +1,5 @@
 # Mock-Book
-Full-stack social media application with modern user experience. Discover users, follow them to see their content, and share your own posts.
+Full-stack social media application in Typescript. Featuring cursor-based pagination paired with Virtuoso's infinite scroll UI.
 
 👉 **[View deployed app](https://mock-book.vercel.app/)**
 
